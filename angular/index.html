@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/angular.min.js"></script>
+<script src="js/angular-animate.min.js"></script>
+<script src="js/angular-aria.min.js"></script>
+<script src="js/angular-messages.min.js"></script>
+<script src="js/angular-material.min.js"></script>
+<!-- Angular Material Library -->
+<link rel="stylesheet" href="css/angular-material.min.css">
+
+<style>
+    .editable-field {
+        background-color: lightcyan;
+
+    }
+
+    .calculated-field {
+        background-color: lightslategrey;
+    }
+
+    .calculated-field-row {
+        background-color: lightgray;
+    }
+
+    .component-header {
+        background-color: lightslategrey;
+    }
+
+    .sub-component-header {
+        background-color: darkgrey;
+    }
+
+    input {
+        background-color: lightcyan;
+        width: 100px;
+    }
+
+    #container {
+        height: 100%;
+
+        font-size: 0;
+    }
+
+    .horiz-divs {
+        display: inline-block;
+        *display: inline;
+        zoom: 1;
+        vertical-align: top;
+        font-size: 12px;
+        padding-right: 10px;
+        padding-top: 10px;
+    }
+</style>
+<body>
+
+<div ng-app="myApp" ng-controller="myCtrl">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12" style="background-color:aliceblue">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-11">US</div>
+                        <div class="col-md-1">
+                            <table border="1">
+                                <tr>
+                                    <td><span ng-click="newQuote()">New</span></td>
+                                    <td><span ng-click="save()">Save</span></td>
+                                    <td>Clone</td>
+                                    <td>Delete</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <table border="1" width="100%">
+                    <tr>
+                        <td><h3>Search</h3></td>
+                        <td><input ng-model="name"></td>
+                        <td>
+                            <button ng-click="search()">xx</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>From:</td>
+                        <td><input></td>
+                    </tr>
+                    <tr>
+                        <td>To:</td>
+                        <td><input></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            Result
+                        </td>
+                    </tr>
+                    <tr ng-repeat="quotation in searchResult">
+                        <input ng-model="quotation.id"/>
+                        <td><input ng-model="quotation.id" hidden/> <a href="" ng-click="showQuotation(quotation)">{{quotation.clientName}}</a>
+                        </td>
+                        <td> {{quotation.weddingDate}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-10">
+                <div class="container-fluid">
+                    <div class="row"><input type="hidden" ng-model="quote.id"/>
+                        <div class="col-md-12">SUm</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">Client Info</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">Name</div>
+                        <div class="col-md-3"><input ng-model="quotation.clientName"/></div>
+                        <div class="col-md-3"><input ng-model="quotation.location"></div>
+                        <div class="col-md-2"><select ng-model="quotation.eventType">
+                            <option value="">Event type</option> <!-- not selected / blank option -->
+                            <option value="Wedding">Wedding</option> <!-- not selected / blank option -->
+                            <option value="Homecoming">Homecoming</option> <!-- not selected / blank option -->
+                            <option value="Bday">B'day</option> <!-- not selected / blank option -->
+                            <option value="Party">Party</option> <!-- not selected / blank option -->
+                        </select></div>
+                        <div class="col-md-2">
+                            <select ng-model="quotation.eventTime">
+                                <option value="">Event time</option> <!-- not selected / blank option -->
+                                <option value="Evening">Evening</option> <!-- not selected / blank option -->
+                                <option value="Morning">Morning</option> <!-- not selected / blank option -->
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3" style="padding:0;margin:0">
+                            <md-datepicker ng-model="quotationDate"
+                                           ng-change="{{quotation.quotationDate=quotationDate.toLocaleDateString()}}"
+                                           md-placeholder="Quotation date"
+                                           style="padding:0;margin:0"></md-datepicker>
+                        </div>
+                        <div class="col-md-3" style="padding:0;margin:0">
+                            <md-datepicker ng-model="weddingDate" md-placeholder="Wedding date"
+                                           ng-change="{{quotation.weddingDate=weddingDate.toLocaleDateString()}}"
+                                           style="padding:0;margin:0"></md-datepicker>
+                        </div>
+                        <div class="col-md-6" style="padding-top: 10px"><textarea style="width: 100%"
+                                                                                  ng-model="quote.comments"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div>
+                                <table border="1" width="100%">
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Qtty</th>
+                                        <th>Rate</th>
+                                        <th>Labour %</th>
+                                        <th>Florist %</th>
+                                        <th>Other %</th>
+                                        <th>Profit %</th>
+                                        <th>Risk factor %</th>
+                                        <th>Total profit</th>
+                                        <th>Qute</th>
+                                        <th><span ng-click="newComponent()">NC</span></th>
+                                    </tr>
+                                    <tr ng-repeat="c in quoteData.components">
+                                        <td><input ng-model="c.name"/></td>
+                                        <td><input ng-model="c.qtty"/></td>
+                                        <td>{{c.total}}</td>
+                                        <td><input ng-model="c.labourPerc"/></td>
+                                        <td><input ng-model="c.floristPerc"/></td>
+                                        <td><input ng-model="c.otherCostPerc"/></td>
+                                        <td><input ng-model="c.profitPerc"/></td>
+                                        <td>{{quotation.riskFactor}}</td>
+                                        <td>{{c.totalProfit*c.qtty}}</td>
+                                        <td colspan="2">{{c.total * c.qtty}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sub totals</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>{{sumAllLabourPerc(quote.components)}}</td>
+                                        <td>{{sumAllFloristPerc(quote.components)}}</td>
+                                        <td>{{sumAllOtherCostPerc(quote.components)}}</td>
+                                        <td colspan="2"></td>
+                                        <td>{{sumAllProfit(quote.components)}}</td>
+                                        <td colspan="2">
+                                            {{sumAllComponents(quote.components)}}
+                                            {{quote.componentsCost}}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Transport</td>
+                                        <td colspan="8">&nbsp;</td>
+                                        <td colspan="2"><input ng-model="quote.transport"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Final quote</td>
+                                        <td colspan="8">&nbsp;</td>
+                                        <td colspan="2">{{createFinalQuote()}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="container">
+                                <div class="horiz-divs">
+                                    <table border="1">
+                                        <tr>
+                                            <td colspan="6">Flower rates</td>
+                                        </tr>
+                                        <tr>
+                                            <td>name</td>
+                                            <td>Buy rate</td>
+                                            <td>Avg buy rate</td>
+                                            <td>Sell</td>
+                                            <td>Qtty required</td>
+                                            <td>Quoted</td>
+                                        </tr>
+                                        <tr ng-repeat="flower in quoteData.quotedFreshFlowerRates">
+                                            <td>{{flower.name}}</td>
+                                            <td>{{flower.buyRate}}</td>
+                                            <td>{{flower.commRate}}</td>
+                                            <td><input ng-model="flower.sellRate"/></td>
+                                            <td>{{flower.qtty}}</td>
+                                            <td>
+                                                {{flower.qtty * flower.sellRate}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Best case profit</td>
+                                            <td>{{bestCaseFlowerProfit()}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Worse case profit</td>
+                                            <td>{{avgCaseFlowerProfit()}}</td>
+                                        </tr>
+
+                                    </table>
+                                </div>
+                                <div class="horiz-divs">
+                                    <table border="1">
+                                        <tr>
+                                            <td colspan="4">Labour rates</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Type</td>
+                                            <td>Rate</td>
+                                            <td>Qtty</td>
+                                            <td>Cost</td>
+                                        </tr>
+                                        <tr ng-repeat="labour in quoteData.quotedLabourRates.labour">
+                                            <td>{{labour.type}}</td>
+                                            <td><input ng-model="labour.rate"/></td>
+                                            <td><input ng-model="labour.qtty"/></td>
+                                            <td>{{labour.rate * labour.qtty}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">Total labour</td>
+                                            <td>
+                                                {{calculateTotalLabour(quoteData.quotedLabourRates)}}
+                                                {{quoteData.quotedLabourRates.cost}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Florist</td>
+                                            <td><input ng-model="quoteData.quotedFloristRates.rate"/></td>
+                                            <td><input ng-model="quoteData.quotedFloristRates.qtty"/></td>
+                                            <td>
+                                                {{calculateFloristCost(quoteData.quotedFloristRates)}}
+                                                {{quoteData.quotedFloristRates.cost}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="horiz-divs">
+                                    <table border="1">
+                                        <tr>
+                                            <td colspan="7">Other costs</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Transport hidden</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.hiddenTransport"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Food</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.food"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Paint</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.paint"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Cleaning</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.cleaning"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Misc</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.misc"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Shop %</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.shopRunningCostPerc"/></td>
+                                            <td>
+                                                {{calculateShopRunningCostApplied(quoteData.quotedOtherCosts)}}
+                                                {{quote.quotedOtherCosts.totalShopRunningCostApplied}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Flower waste%</td>
+                                            <td><input ng-model="quoteData.quotedOtherCosts.flowerWastagePerc"/></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Total other costs</td>
+                                            <td>
+                                                {{calculateTotalOtherCosts(quoteData.quotedOtherCosts)}}
+                                                {{quoteData.quotedOtherCosts.total}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="horiz-divs">
+                                    <table border="1">
+                                        <tr>
+                                            <th colspan="3">Shop running cost</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Rent</td>
+                                            <td>{{quote.shopRunningCost.rent}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Electriccity</td>
+                                            <td>{{quote.shopRunningCost.electricity}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Water</td>
+                                            <td>{{quote.shopRunningCost.water}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Phone</td>
+                                            <td>{{quote.shopRunningCost.telephone}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Transport</td>
+                                            <td>{{quote.shopRunningCost.transport}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Misc</td>
+                                            <td>{{quote.shopRunningCost.misc}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">Labour</td>
+                                        </tr>
+                                        <tr ng-repeat="emp in quote.shopRunningCost.employees">
+                                            <td>&nbsp;</td>
+                                            <td>{{emp.name}}</td>
+                                            <td>{{emp.salary}}
+                                            <td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Total</td>
+                                            <td>
+                                                {{calculateShopRunningCost(quote.shopRunningCost)}}
+                                                {{quote.shopRunningCost.total}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="horiz-divs">
+                                    <table border="1">
+                                        <tr>
+                                            <th>Months</th>
+                                            <th>Risk factor per month</th>
+                                        </tr>
+                                        <tr>
+                                            <td>0-6</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>7-12</td>
+                                            <td>0.5 for each month</td>
+                                        </tr>
+                                        <tr>
+                                            <td>13-18</td>
+                                            <td>0.8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>19-24</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Months to wedding</td>
+                                            <td> {{diffDate(quote.quotationDate,quote.weddingDate)}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Calculated risk</td>
+                                            <td>
+                                                {{calculateRiskFactor(diffDate(quotation.quotationDate,quotation.weddingDate))}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Applied risk</td>
+                                            <td><input ng-model="quotation.riskFactor"/></td>
+                                        </tr>
+                                    </table>
+                                    Time risk data
+                                </div>
+                            </div>
+                            <div ng-repeat="component in quoteData.components" style="padding-top: 50px;">
+                                <div ng-show="component.qtty > 0">
+                                    <table border="1" width="100%">
+                                        <tr class="component-header">
+                                            <td colspan="5">
+                                                {{component.name}} - {{component.qtty}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5">
+                                                {{component.description}}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Desription</th>
+                                            <th>Rate</th>
+                                            <th>Qtty</th>
+                                            <th>Cost</th>
+                                        </tr>
+                                        <tr class="sub-component-header">
+                                            <td colspan="4" style="padding-top: 1em;">Configured Items</td>
+                                            <td style="padding-top: 1em;">
+                                                <h4><span ng-click="newItem(component,'configured')">➕</span></h4>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat="item in component.items">
+                                            <td>
+                                                <select ng-options="i as i.name for i in configuredItems track by im.name"
+                                                        ng-model="item.item.name"></select>
+                                            </td>
+                                            <td>{{item.item.description}}</td>
+                                            <td><input ng-model="item.qtty" class="editable-field"/></td>
+                                            <td><input ng-model="item.rate"/></td>
+                                            <td>{{item.rate*item.qtty}}</td>
+                                        </tr>
+                                        <tr class="sub-component-header">
+                                            <td colspan="4" style="padding-top: 1em;">Basic Items</td>
+                                            <td style="padding-top: 1em;"><h4><span
+                                                    ng-click="newItem(component, 'minor')">➕</span></h4></td>
+                                        </tr>
+                                        <tr ng-repeat="mi in component.minorItem">
+                                            <td>{{mi.name}}</td>
+                                            <td>{{mi.description}}</td>
+                                            <td>NA</td>
+                                            <td>NA</td>
+                                            <td><input ng-model="mi.cost"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5">&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5">C</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="5">&nbsp;</td>
+                                        </tr>
+                                        <tr class="sub-component-header">
+                                            <td colspan="4" style="padding-top: 1em;">Fresh flowers</td>
+                                            <td style="padding-top: 1em;"><h4><span
+                                                    ng-click="newFlower(component)">➕</span></h4></td>
+                                        </tr>
+                                        <tr ng-repeat="flower in component.freshFlowers">
+                                            <td>
+                                                <select ng-options="f as f.name for f in freshFlowers track by f.name"
+                                                        ng-model="flower.name"
+                                                        ng-change="{{calculateSellRate(flower)}}"></select>
+                                            </td>
+                                            <td>&nbsp;</td>
+                                            <td>
+                                                {{flower.sellRate}}
+                                            </td>
+                                            <td><input ng-model="flower.qtty"/></td>
+                                            <td>{{flower.qtty * flower.sellRate}}</td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total j cost</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateFreshFlowerTotal(component)}}
+                                                {{component.totalFreshFlowerCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="sub-component-header">
+                                            <td colspan="5" style="padding-top: 1em;">Artificial flowers</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Silk</td>
+                                            <td>Description</td>
+                                            <td>{{component.silkFlowerRate}}</td>
+                                            <td><input ng-model="component.silkFlowers"></td>
+                                            <td>{{component.silkFlowerRate * component.silkFlowers}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Non-Silk</td>
+                                            <td>Description</td>
+                                            <td>{{component.otherFlowerRate}}</td>
+                                            <td><input ng-model="component.otherFlowers"></td>
+                                            <td>{{component.otherFlowers * component.otherFlowerRate}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Artificial leaves</td>
+                                            <td colspan="3">description</td>
+                                            <td><input ng-model="component.artificialLeaves">
+                                            <td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total artificial</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateArtificialFlowerTotal(component)}}
+                                                {{component.totalArtificialFlowerCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total flower cost</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{component.totalFlowerCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total material cost</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateTotalMaterialCost(component)}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total base cost</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateBaseCost(component)}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Labour</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateLabourCostForComponent(component) }}
+                                                {{component.totalLabourCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Florist charge</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateFloristCostForComponent(component) }}
+                                                {{component.totalFloristCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Other costs</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateOtherCostsForComponent(component) }}
+                                                {{component.totalOtherCost}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Total before profit</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateTotalBeforeProfit(component) }}
+                                                {{component.totalBeforeProfit}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Profit</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateProfitForComponent(component) }}
+                                                {{component.totalProfit}}
+                                            </td>
+                                        </tr>
+                                        <tr class="calculated-field-row">
+                                            <td>Component final cost</td>
+                                            <td colspan="3"></td>
+                                            <td>
+                                                {{calculateComponentTotal(component)}}
+                                                {{component.total}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var app = angular.module("myApp", ['ngMaterial']);
+
+
+    app.controller("myCtrl", function ($scope, $http) {
+            this.myDate = new Date();
+            this.isOpen = false;
+            $scope.hello = "world";
+
+            //todo fix name
+            var quote2 = $http.get('http://localhost/urban/rest/api/v1/item.php').then(function (response) {
+                $scope.configuredItems = response.data;
+            });
+
+            $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
+                $scope.freshFlowers = response.data;
+            });
+
+            var quote1 = $http.get('http://localhost/urban/rest/api/v1/quotation.php/x/y/z').then(function (response) {
+                $scope.quote = response.data;
+                $scope.quotationDate = new Date($scope.quote.quotationDate);
+                $scope.weddingDate = new Date($scope.quote.weddingDate);
+            });
+
+            $scope.calculateTotalItemsCost = function (c) {
+                var total = 0;
+                angular.forEach(c.items, function (i) {
+                    total = total + i.qtty * i.rate;
+                });
+                return total;
+            };
+
+
+            $scope.calculateTotalMinorItemsCost = function (c) {
+                var total = 0;
+                angular.forEach(c.minorItem, function (i) {
+                    total = total + i.cost;
+                });
+                return total;
+            };
+
+            $scope.calculateBaseCost = function (c) {
+                return $scope.calculateTotalMaterialCost(c) + c.totalFlowerCost;
+            };
+
+            $scope.calculateTotalMaterialCost = function (c) {
+                var total = 0;
+                total = $scope.calculateTotalItemsCost(c) + $scope.calculateTotalMinorItemsCost(c);
+                c.totalMeterialCost = total;
+                return total;
+            };
+
+
+            $scope.calculateTotalFlowerCost = function (c) {
+                var total = 0;
+                total = $scope.calculateArtificialFlowerTotal(c) + $scope.calculateFreshFlowerTotal(c);
+                c.totalFlowerCost = total;
+                return total;
+            };
+
+            $scope.calculateArtificialFlowerTotal = function (c) {
+                var total = 0;
+                total = c.silkFlowerRate * c.silkFlowers + c.otherFlowerRate * c.otherFlowers + c.artificialLeaves * 1;
+                c.totalArtificialFlowerCost = total;
+                c.totalFlowerCost = c.totalFreshFlowerCost + c.totalArtificialFlowerCost;
+            };
+
+            $scope.calculateFreshFlowerTotal = function (c) {
+                var total = 0;
+                angular.forEach(c.freshFlowers, function (x) {
+                    total = total + x.qtty * x.sellRate;
+                });
+                c.totalFreshFlowerCost = total;
+            };
+
+
+            $scope.calculateTotalLabour = function (ql) {
+                var total = 0;
+                angular.forEach(ql.labour, function (l) {
+                    total = total + (l.rate * l.qtty);
+                });
+                ql.cost = total;
+            };
+
+
+            $scope.calculateProfitForComponent = function (component) {
+                component.totalProfit = (component.totalBeforeProfit / 100) * component.profitPerc / component.qtty;
+            };
+
+            $scope.calculateFloristCostForComponent = function (component) {
+                component.totalFloristCost = ($scope.quoteData.quotedFloristRates.cost / 100) * component.floristPerc / component.qtty;
+            };
+
+            $scope.calculateOtherCostsForComponent = function (component) {
+                component.totalOtherCost = ($scope.quoteData.quotedOtherCosts.total / 100) * component.otherCostPerc / component.qtty;
+            };
+
+            $scope.calculateLabourCostForComponent = function (component) {
+                component.totalLabourCost = ($scope.quoteData.quotedLabourRates.cost / 100) * component.labourPerc / component.qtty;
+            };
+
+            $scope.calculateFloristCost = function (florist) {
+                florist.cost = florist.rate * florist.qtty;
+            };
+
+            $scope.calculateTotalOtherCosts = function (quotedOtherCosts) {
+                quotedOtherCosts.total = parseInt(quotedOtherCosts.totalShopRunningCostApplied) + parseInt(quotedOtherCosts.food) +
+                    parseInt(quotedOtherCosts.paint) + parseInt(quotedOtherCosts.cleaning) + parseInt(quotedOtherCosts.misc) +
+                    parseInt(quotedOtherCosts.hiddenTransport) + parseInt(quotedOtherCosts.flowerWastageApplied);
+            };
+
+            $scope.calculateTotalBeforeProfit = function (component) {
+                component.totalBeforeProfit = component.totalLabourCost + component.totalOtherCost + component.totalFloristCost + $scope.calculateBaseCost(component)
+            };
+
+            $scope.calculateShopRunningCost = function (shop) {
+                var total = 0;
+                total = total + shop.electricity + shop.water + shop.telephone + shop.stationary + shop.transport + shop.misc + shop.rent;
+                angular.forEach(shop.employees, function (emp) {
+                    total = total + parseInt(emp.salary);
+                });
+                shop.total = total;
+            };
+
+            $scope.calculateComponentTotal = function (component) {
+                if ($scope.quotation.riskFactor == 0 || $scope.quotation.riskFactor == null) {
+                    $scope.quotation.riskFactor = 1;
+                }
+                component.total = component.totalBeforeProfit * $scope.quotation.riskFactor + component.totalProfit;
+            };
+
+
+            $scope.calculateShopRunningCostApplied = function (quotedOtherCosts) {
+                var total = 0;
+                quotedOtherCosts.totalShopRunningCostApplied = $scope.quote.shopRunningCost.total / 100 * quotedOtherCosts.shopRunningCostPerc;
+            };
+
+
+            $scope.sumAllLabourPerc = function (components) {
+                var total = 0;
+                angular.forEach(components, function (c) {
+                    total = total + c.labourPerc
+                });
+                return total;
+            };
+
+            $scope.sumAllProfit = function (components) {
+                var total = 0;
+                angular.forEach(components, function (c) {
+                    total = total + (c.totalProfit * c.qtty);
+                });
+                return total;
+            };
+
+            $scope.createFinalQuote = function () {
+                $scope.quote.quotationValue = $scope.quote.componentsCost + parseInt($scope.quote.transport);
+                return $scope.quote.quotationValue;
+            };
+            $scope.sumAllComponents = function (components) {
+                var total = 0;
+                angular.forEach(components, function (c) {
+                    total = total + (c.total * c.qtty);
+                });
+                $scope.quote.componentsCost = total;
+            };
+
+            $scope.sumAllFloristPerc = function (components) {
+                var total = 0;
+                angular.forEach(components, function (c) {
+                    total = total + c.floristPerc;
+                });
+                return total;
+            };
+
+            $scope.sumAllOtherCostPerc = function (components) {
+                var total = 0;
+                angular.forEach(components, function (c) {
+                    total = total + c.otherCostPerc;
+                });
+                return total;
+            };
+
+            $scope.calculateSellRate = function (flower) {
+                angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (flowerRate) {
+                    if (flowerRate.name === flower.name.name) {
+                        flower.sellRate = flowerRate.sellRate;
+                    }
+                });
+                $scope.calculateTotalFlowersQuoted();
+
+            };
+
+            $scope.calculateRiskFactor = function (months) {
+                if (months <= 6) {
+                    return 0;
+                } else if (months > 6 && months <= 12) {
+                    return months * 0.8;
+                } else if (months > 12 && months <= 18) {
+                    return months * 0.9;
+                } else {
+                    return months;
+                }
+            };
+
+            $scope.avgCaseFlowerProfit = function () {
+                var total = 0;
+                angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (flower) {
+                    total = total + (flower.qtty * flower.sellRate) - (flower.qtty * flower.commRate);
+                });
+                return total;
+            };
+
+            $scope.bestCaseFlowerProfit = function () {
+                var total = 0;
+                angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (flower) {
+                    total = total + (flower.qtty * flower.sellRate) - (flower.qtty * flower.buyRate);
+                });
+                return total;
+            };
+
+            $scope.calculateTotalFlowersQuoted = function () {
+                var total = 0;
+
+                angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (qff) {
+                    var found = false;
+                    angular.forEach($scope.quoteData.components, function (component) {
+                        angular.forEach(component.freshFlowers, function (flower) {
+                            if (flower.name.name === qff.name) {
+                                found = true;
+                                total = total + parseInt(flower.qtty);
+                                qff.qtty = total;
+                            }
+                        })
+                    });
+                    if (!found) {
+                        qff.qtty = 0;
+                    }
+                });
+            };
+
+            $scope.newQuote = function () {
+                var quote = $http.put('http://localhost/urban/rest/api/v1/quotation.php', $scope.data).then(function (response) {
+                    $scope.quoteData = response.data;
+                    $scope.quotationDate = new Date();
+                    $scope.weddingDate = new Date();
+                    $scope.quotation = {
+                        'clientName': 'Me',
+                        'location': 'Here',
+                        'eventTime': 'Evening',
+                        'eventType': 'Wedding'
+                    };
+                });
+            };
+
+            $scope.save = function () {
+                $scope.quotation.data = $scope.quoteData;
+                var res = $http.post('/urban/rest/api/v1/quotation.php', $scope.quotation);
+                res.success(function (data, status, headers, config) {
+                    alert(data);
+                });
+                res.error(function (data, status, headers, config) {
+                    alert("failure message: " + JSON.stringify({data: data}));
+                });
+
+            };
+
+            $scope.search = function () {
+                quote = $http.get('http://localhost/urban/rest/api/v1/quotation.php/?name=' + $scope.name).then(function (response) {
+                    $scope.searchResult = response.data;
+                });
+            };
+
+            $scope.toDate = function (dateStr) {
+                return new Date(dateStr);
+            };
+
+            $scope.diffDate = function (date1, date2) {
+                var a = new Date(date1);
+                var b = new Date(date2);
+
+                var c = Math.abs(a - b);
+                return new Date(c).getMonth();
+            };
+
+
+            $scope.showQuotation = function (quotation) {
+                quote = $http.get('http://localhost/urban/rest/api/v1/quotation.php/' + quotation.id).then(function (response) {
+                    $scope.quotation = quotation;
+                    $scope.quoteData = response.data;
+                    $scope.quotationDate = new Date(quotation.quotationDate);
+                    $scope.weddingDate = new Date(quotation.weddingDate);
+                });
+            };
+
+            $scope.newFlower = function (component) {
+                component.freshFlowers.push({
+                    'name': '',
+                    'sellRate': 0
+                })
+            };
+
+            $scope.newItem = function (component, type) {
+                //todo no need to call server. locally create the json
+                var quote = $http.put('http://localhost/urban/rest/api/v1/item.php?type=' + type).then(function (response) {
+                    if (type === 'minor') {
+                        component.minorItem.push(response.data);
+                    } else {
+                        component.items.push(response.data);
+                    }
+                });
+            };
+
+            $scope.newComponent = function () {
+                var quote = $http.put('/urban/rest/api/v1/component.php').then(function (response) {
+                    $scope.quoteData.components.push(response.data);
+                });
+            };
+        }
+    );
+
+</script>
+</body>
+</html>

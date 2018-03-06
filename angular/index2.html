@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="node_modules/angular-material/angular-material.css">
+</head>
+<body>
+
+dadfa
+<div ng-app="X" ng-controller="Y">
+</div>
+
+<script src="js/angular.min.js"></script>
+<!--<script src="node_modules/angular-aria/angular-aria.js"></script>-->
+<!--<script src="node_modules/angular-animate/angular-animate.js"></script>-->
+<script src="node_modules/angular-messages/angular-messages.js"></script>
+<script src="node_modules/angular-material/angular-material.js"></script>
+<script>
+    // Include app dependency on ngMaterial
+    angular.module('X', ['ngMaterial', 'ngMessages'])
+        .controller("Y", function ($scope) {
+
+        });
+</script>
+</body>
+</html>
