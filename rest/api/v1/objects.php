@@ -103,6 +103,7 @@ class Component
     public $name;
     public $description;
     public $qtty = 1;
+    public $visible = true;
 
     public $labourRates;
     public $floristRates;

@@ -127,7 +127,7 @@ function saveOrUpdateQuotation($quotation, $quotation_data, $conn)
         WHERE id = " . strval($quotation->id);
 
         if ($conn->query($updateQuote) === TRUE) {
-            if ($conn->query("UPDATE quotation_data set data ='" . $quotation_data . "'") === TRUE) {
+            if ($conn->query("UPDATE quotation_data set data ='" . $quotation_data . "' where quotation_id= ".strval($quotation->id)) === TRUE) {
                 echo "updated";
             } else {
                 echo("Error description: " . mysqli_error($conn));

@@ -37,11 +37,6 @@ function handlePost()
     $jsonQuote = json_decode($payload, false);
 
     $quotation = Quotation::parse($jsonQuote);
-//    $quote = createQuote($jsonQuote->data);
-//    var_dump($quote);
-//    echo json_encode($jsonQuote->data);
-
-//      var_dump($payload);
     saveOrUpdateQuotation($quotation, json_encode($jsonQuote->data), $conn);
     $conn->close();
 }
