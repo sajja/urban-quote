@@ -1,29 +1,21 @@
 CREATE DATABASE  urbanste_master;
 
 CREATE TABLE item (
-     name CHAR(30) NOT NULL,
+     id SMALLINT AUTO_INCREMENT,
+     name CHAR(30) NOT NULL UNIQUE,
      description CHAR(255),
-     total SMALLINT,
+     total INT,
      recovery_time SMALLINT,
      hire_cost SMALLINT NOT NULL,
-     PRIMARY KEY (name)
-);
-
-CREATE TABLE component (
-     id SMALLINT  NOT NULL AUTO_INCREMENT,
-     name CHAR(30) NOT NULL UNIQUE,
-     description VARCHAR(400),
      PRIMARY KEY (id)
 );
-
-CREATE TABLE component_item (
-    component_id SMALLINT,
-    item CHAR(30),
-    hire_cost SMALLINT NOT NULL,
-    FOREIGN KEY (component_id) REFERENCES component(id),
-    FOREIGN KEY (item) REFERENCES item(name),
-    PRIMARY KEY (component_id, item)
-);
+--
+-- CREATE TABLE component (
+--      id SMALLINT  NOT NULL AUTO_INCREMENT,
+--      name CHAR(30) NOT NULL UNIQUE,
+--      description VARCHAR(400),
+--      PRIMARY KEY (id)
+-- );
 
 CREATE TABLE quotation (
   id SMALLINT NOT NULL  AUTO_INCREMENT,
@@ -33,6 +25,7 @@ CREATE TABLE quotation (
   wedding_date DATE,
   event_type CHAR(20),
   location CHAR(15),
+  approved SMALLINT DEFAULT 0,
   event_time CHAR(15),
   PRIMARY KEY (id)
 );
@@ -46,11 +39,12 @@ CREATE TABLE quotation_data (
 );
 
 CREATE TABLE fresh_flower (
-    name CHAR (20),
+    id SMALLINT AUTO_INCREMENT,
+    name CHAR (20) NOT NULL UNIQUE ,
     buy_rate SMALLINT NOT NULL,
     comm_rate SMALLINT NOT NULL,
     sell_rate SMALLINT NOT NULL,
-    PRIMARY KEY (name)
+    PRIMARY KEY (id)
 );
 CREATE TABLE labour (
     type CHAR(20),
@@ -59,13 +53,15 @@ CREATE TABLE labour (
 );
 
 CREATE TABLE employee (
-    name CHAR(20),
+    id SMALLINT NOT NULL  AUTO_INCREMENT,
+    name CHAR(20) UNIQUE,
     salary SMALLINT NOT NULL,
-    PRIMARY KEY (name)
+    PRIMARY KEY (id)
 );
 
-CREATE TABLE other_cost_master (
+CREATE TABLE utility(
+    id SMALLINT NOT NULL  AUTO_INCREMENT,
     name CHAR(30),
-    total SMALLINT NOT NULL,
-    PRIMARY KEY (name)
+    total INT NOT NULL,
+    PRIMARY KEY (id)
 );

@@ -37,6 +37,7 @@ function handlePost()
     $jsonQuote = json_decode($payload, false);
 
     $quotation = Quotation::parse($jsonQuote);
+//    echo $payload;
     saveOrUpdateQuotation($quotation, json_encode($jsonQuote->data), $conn);
     $conn->close();
 }
@@ -56,9 +57,7 @@ function quoteFlower($flower)
 function newQuotation()
 {
     $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
-
     $components = array();
-
     $flowers = loadAllFreshFlowers($conn);
     $labourers = loadAllLabour($conn);
     $employees = loadAllEmployees($conn);
@@ -77,7 +76,11 @@ function newQuotation()
     $quotationData->quotedFreshFlowerRates = $quotedFreshFlowerRates;
     $quotationData->quotedLabourRates = new QuotedLabour($labourers);
     $quotationData->quotedFloristRates = quoteFlorist(1, 7000);
+
+    $utilities = loadUtilities($conn);
+
     $shopRunningCost = new QuotedShopRunningCost();
+    $shopRunningCost->employees = $employees;
     $shopRunningCost->rent = 40000;
     $shopRunningCost->electricity = 13000;
     $shopRunningCost->water = 500;
@@ -85,7 +88,8 @@ function newQuotation()
     $shopRunningCost->misc = 5000;
     $shopRunningCost->stationary = 1000;
     $shopRunningCost->transport = 1000;
-    $shopRunningCost->employees = $employees;
+    $shopRunningCost->utilities = $utilities;
+
     $quotationData->shopRunningCost = $shopRunningCost;
     $quotationData->quotedOtherCosts = new QuotedOtherCosts();
     $quotationData->quotedOtherCosts->paint = $otherCosts->paint;

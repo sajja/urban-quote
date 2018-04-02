@@ -17,6 +17,7 @@ function handlePut()
     $component->minorItem = $basicItems;
     $component->items = $configureItems;
     $component->freshFlowers=$freshFlowers;
+    $component->mandetory=true;
     echo json_encode($component);
 }
 

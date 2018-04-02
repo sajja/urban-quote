@@ -9,12 +9,13 @@ class Quotation
     public $quotationDate;
     public $eventType;
     public $eventTime;
+    public $approved = 0;
     public $location;
-    public $description;
+    public $comments;
     public $quotation;
     public $data;
 
-    function __construct($clientName, $weddingDate, $quotationDate, $eventType, $eventTime, $location, $description)
+    function __construct($clientName, $weddingDate, $quotationDate, $eventType, $eventTime, $location, $comments)
     {
         $this->clientName = $clientName;
         $this->weddingDate = $weddingDate;
@@ -22,7 +23,7 @@ class Quotation
         $this->eventType = $eventType;
         $this->eventTime = $eventTime;
         $this->location = $location;
-        $this->description = $description;
+        $this->comments = $comments;
     }
 
     static function parse($json)
@@ -34,9 +35,10 @@ class Quotation
             $json->eventType,
             $json->eventTime,
             $json->location,
-            $json->description
+            $json->comments
         );
         $quotation->id = $json->id;
+        $quotation->approved = $json->approved;
 
         $quotationData = QuotationData::parse($json->data);
         $quotation->data = $quotationData;
@@ -104,6 +106,7 @@ class Component
     public $description;
     public $qtty = 1;
     public $visible = true;
+    public $type = "GENERIC";
 
     public $labourRates;
     public $floristRates;
@@ -136,6 +139,7 @@ class Component
     public $totalFlowerCost;
     public $totalItemCost;
     public $totalMinorItemCost;
+    public $mandetory = false;
 
     public $totalBeforeProfit;
     public $total;
@@ -149,6 +153,8 @@ class Component
         $freshFlowers = array();
 
         $component->name = $json->name;
+        $component->type = $json->type;
+        $component->mandetory = $json->mandetory;
         $component->description = $json->description;
         $component->qtty = $json->qtty;
         $component->labourRates = $json->labourRates;
@@ -185,7 +191,7 @@ class Component
 
 
         $component->minorItem = $minorItems;
-        $component->freshFlowers=$freshFlowers;
+        $component->freshFlowers = $freshFlowers;
         return $component;
     }
 }
@@ -235,6 +241,7 @@ class QuotedItem
 
 class Item
 {
+    public $id;
     public $name;
     public $description;
     public $total;
@@ -253,6 +260,7 @@ class Item
     static function parse($json)
     {
         $item = new Item($json->name, $json->description, $json->total, $json->recovery_time, $json->hire_cost);
+        $item->id = $json->id;
         return $item;
     }
 }
@@ -260,6 +268,7 @@ class Item
 
 class Flower
 {
+    public $id;
     public $name;
     public $buyRate;
     public $comBuyRate;
@@ -276,6 +285,7 @@ class Flower
     static function parse($json)
     {
         $flower = new Flower($json->name, $json->buyRate, $json->comBuyRate, $json->sellRate);
+        $flower->id = $json->id;
         return $flower;
     }
 }
@@ -336,6 +346,8 @@ class Labour
     public $rate;
     public $qtty = 1;
     public $cost;
+    public $actual=0;
+
 
     function __construct($type, $rate)
     {
@@ -404,6 +416,25 @@ class QuotedOtherCosts
     }
 }
 
+class Utility
+{
+    public $name;
+    public $cost;
+    public $id;
+
+    function __construct($name, $cost, $id)
+    {
+        $this->name = $name;
+        $this->cost = $cost;
+        $this->id = $id;
+    }
+
+    static function parse($json)
+    {
+        return new Utility($json->name, $json->cost, $json->id);
+    }
+}
+
 class OtherCosts
 {
     public $shopRunningCostPerc = 0;
@@ -464,18 +495,12 @@ class ShopRunningCost
 class QuotedShopRunningCost
 {
     public $employees;
-    public $electricity;
-    public $water;
-    public $telephone;
-    public $stationary;
-    public $transport;
-    public $misc;
-    public $rent;
+    public $utilities;
     public $total = 0;
 
     static function parse($json)
     {
-        $shop = new ShopRunningCost();
+        $shop = new QuotedShopRunningCost();
         $shop->employees = $json->employees;
         $shop->electricity = $json->electricity;
         $shop->water = $json->water;
@@ -485,6 +510,20 @@ class QuotedShopRunningCost
         $shop->misc = $json->misc;
         $shop->rent = $json->rent;
         $shop->total = $json->total;
+
+
+        $employees = array();
+        $utilities = array();
+
+        for ($x = 0; $x < count($json->utilities); $x++) {
+            array_push($utilities, Utility::parse($json->utilities[$x]));
+        }
+
+        for ($x = 0; $x < count($json->employees); $x++) {
+            array_push($employees, Employee::parse($json->employees[$x]));
+        }
+
+        $shop->utilities = $utilities;
         return $shop;
     }
 }
@@ -508,12 +547,15 @@ class QuotedEmployee
 
 class Employee
 {
+    public $id;
     public $name;
     public $salary;
 
     static function parse($json)
     {
-        return new Employee($json->name, $json->salary);
+        $emp =  new Employee($json->name, $json->salary);
+        $emp->id = $json->id;
+        return $emp;
     }
 
     function __construct($name, $salary)

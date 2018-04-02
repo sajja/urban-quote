@@ -5,14 +5,24 @@ $username = "root";
 $password = "root";
 
 
-function loadItems($resource, $conn)
+function loadAllItems($conn)
+{
+    $sql = "SELECT * FROM item";
+    return loadItems($sql, $conn);
+}
+
+
+function loadFilteredItems($resource, $conn)
+{
+    $sql = "SELECT * FROM item where name like( '%" . $resource . "%')";
+    return loadItems($sql, $conn);
+}
+
+
+function loadItems($sql, $conn)
 {
     $objs = array();
-    if ($resource == null) {
-        $sql = "SELECT * FROM item";
-    } else {
-        $sql = "SELECT * FROM item where name = '$resource->name'";
-    }
+
     if ($result = $conn->query($sql)) {
         $row_cnt = $result->num_rows;
 
@@ -29,30 +39,55 @@ function loadItems($resource, $conn)
 
 function createItem($row)
 {
-    return new Item($row["name"], $row["description"], $row["total"], $row["recovery_time"], $row["hire_cost"]);
+    $item = new Item($row["name"], $row["description"], $row["total"], $row["recovery_time"], $row["hire_cost"]);
+    $item->id = $row["id"];
+    return $item;
 }
 
+function saveOrUpdateUtility($util, $conn)
+{
+    if ($util->id == null) {
+        $sql = "INSERT INTO utility (name,total) values('" . $util->name . "'," . $util->cost . ")";
+    } else {
+        $sql = "UPDATE utility set total = " . $util->cost . " WHERE name='" . $util->name . "'";
+    }
+
+    if ($conn->query($sql) === TRUE) {
+        return "Update successfully";
+    } else {
+        echo("Error description: " . mysqli_error($conn));
+    }
+}
+
+function saveOrUpdateFlower($flower, $conn)
+{
+    if ($flower->id == null) {
+        $sql = "INSERT INTO fresh_flower (name,buy_rate,comm_rate,sell_rate) values('" . $flower->name . "'," . $flower->buyRate . "," . $flower->comBuyRate . "," . $flower->sellRate . ")";
+    } else {
+        $sql = "UPDATE fresh_flower set name = '" . $flower->name . "'" . ", buy_rate = " . $flower->buyRate . ", comm_rate = " . $flower->comBuyRate . ", sell_rate = " . $flower->sellRate . " WHERE id=" . $flower->id;
+    }
+
+
+    if ($conn->query($sql) === TRUE) {
+        return "Update successfully";
+    } else {
+        echo("Error description: " . mysqli_error($conn));
+    }
+}
 
 function saveOrUpdateItem($resource, $conn)
 {
-    $item = loadItem($resource);
-
-    if ($item == null) {
-        $sql = "INSERT INTO item VALUES ('$resource->name','$resource->description',$resource->total,$resource->recovery_time,$resource->hire_cost)";
-
-        if ($conn->query($sql) === TRUE) {
-            return "New record created successfully";
-        } else {
-            return "Error: ";
-        }
+    if ($resource->id == null) {
+        $sql = "INSERT INTO item (name,description,total,recovery_time,hire_cost) VALUES ('$resource->name','$resource->description',$resource->total,$resource->recovery_time,$resource->hire_cost)";
+        echo $sql;
     } else {
-        $sql = "UPDATE item set description = '$resource->description', total=$resource->total, recovery_time=$resource->recovery_time, hire_cost=$resource->hire_cost WHERE name='$resource->name'";
+        $sql = "UPDATE item  set name='$resource->name', description = '$resource->description', total=$resource->total, recovery_time=$resource->recovery_time, hire_cost=$resource->hire_cost WHERE id=$resource->id";
+    }
 
-        if ($conn->query($sql) === TRUE) {
-            return "Update successfully";
-        } else {
-            return "Error: ";
-        }
+    if ($conn->query($sql) === TRUE) {
+        return "Update successfully";
+    } else {
+        echo("Error description: " . mysqli_error($conn));
     }
 }
 
@@ -76,15 +111,31 @@ function loadAllEmployees($conn)
     if ($result = $conn->query('SELECT * FROM employee')) {
 
         while ($row = $result->fetch_assoc()) {
-            array_push($flowers, new Employee($row["name"], $row["salary"]));
+            $emp = new Employee($row["name"], $row["salary"]);
+            $emp->id = $row["id"];
+            array_push($flowers, $emp);
         }
-
         $result->close();
     } else {
-        throw new Exception("Error");
+        echo("Error description: " . mysqli_error($conn));
+    }
+    return $flowers;
+}
+
+function saveOrUpdateEmployee($emp, $conn)
+{
+    if ($emp->id == null) {
+        $sql = "INSERT INTO employee (name,salary) VALUES ('$emp->name',$emp->salary)";
+        echo $sql;
+    } else {
+        $sql = "UPDATE employee  set name='$emp->name', salary = $emp->salary WHERE id=$emp->id";
     }
 
-    return $flowers;
+    if ($conn->query($sql) === TRUE) {
+        return "Update successfully";
+    } else {
+        echo("Error description: " . mysqli_error($conn));
+    }
 }
 
 function loadAllFreshFlowers($conn)
@@ -93,11 +144,13 @@ function loadAllFreshFlowers($conn)
     if ($result = $conn->query('SELECT * FROM fresh_flower')) {
 
         while ($row = $result->fetch_assoc()) {
-            array_push($flowers, new Flower($row["name"], $row["buy_rate"], $row["comm_rate"], $row["sell_rate"]));
+            $flower = new Flower($row["name"], $row["buy_rate"], $row["comm_rate"], $row["sell_rate"]);
+            $flower->id = $row["id"];
+            array_push($flowers, $flower);
         }
         $result->close();
     } else {
-        throw new Exception("Error");
+        echo("Error description: " . mysqli_error($conn));
     }
     return $flowers;
 }
@@ -105,34 +158,43 @@ function loadAllFreshFlowers($conn)
 function saveOrUpdateQuotation($quotation, $quotation_data, $conn)
 {
     if ($quotation->id == null) {
-        $insertQuote = "INSERT INTO quotation (client_name,description,quote_date,wedding_date,event_type,location,event_time)
+
+        $insertQuote = "INSERT INTO quotation (client_name,description,quote_date,wedding_date,event_type,location,event_time,approved)
                         VALUES (" . strItem($quotation->clientName) . "," . strItem($quotation->comments) . "," . "STR_TO_DATE(" . strItem($quotation->quotationDate) . ",'%m/%d/%Y')" . ","
-            . "STR_TO_DATE(" . strItem($quotation->weddingDate) . ",'%m/%d/%Y')" . "," . strItem($quotation->eventType) . "," . strItem($quotation->location) . "," . strItem($quotation->eventTime) . ")";
+            . "STR_TO_DATE(" . strItem($quotation->weddingDate) . ",'%m/%d/%Y')" . "," . strItem($quotation->eventType) . "," . strItem($quotation->location) . "," . strItem($quotation->eventTime) .
+            "," . $quotation->approved . ")";
+
         if ($conn->query($insertQuote) === TRUE) {
             $quote_id = mysqli_insert_id($conn);
             $insertQuoteData = "INSERT INTO quotation_data (quotation_id,data) VALUES (" . strval($quote_id) . " ,'" . $quotation_data . "')";
             if ($conn->query($insertQuoteData) === TRUE) {
-                echo("created");
+                $q = findQuotationById($quote_id, $conn);
+                echo json_encode($q);
             } else {
                 echo("Error description: " . mysqli_error($conn));
             }
         } else {
+            echo $insertQuote;
             echo("Error description: " . mysqli_error($conn));
         }
     } else {
-        $updateQuote = "UPDATE quotation set client_name='" . $quotation->clientName . "',description='" . $quotation->comments . "',
-        quote_date=" . "STR_TO_DATE(" . strItem($quotation->quotationDate) . ", '%m/%d/%Y')" . ",
-        wedding_date=" . "STR_TO_DATE(" . strItem($quotation->weddingDate) . ", '%m/%d/%Y') " . ",
-        event_type='" . $quotation->eventType . "',location='" . $quotation->location . "',event_time='" . $quotation->eventTime . "' 
-        WHERE id = " . strval($quotation->id);
+        $updateQuote = "UPDATE quotation set client_name='" . $quotation->clientName . "',description='" . $quotation->comments .
+            "', quote_date=" . "STR_TO_DATE(" . strItem($quotation->quotationDate) . ", '%m/%d/%Y')" . ", wedding_date=" .
+            "STR_TO_DATE(" . strItem($quotation->weddingDate) . ", '%m/%d/%Y') " . ", event_type='" . $quotation->eventType .
+            "',location='" . $quotation->location . "',event_time='" . $quotation->eventTime . "',approved=" . $quotation->approved .
+            " WHERE id = " . strval($quotation->id);
 
         if ($conn->query($updateQuote) === TRUE) {
-            if ($conn->query("UPDATE quotation_data set data ='" . $quotation_data . "' where quotation_id= ".strval($quotation->id)) === TRUE) {
-                echo "updated";
+            $updateQuoteData = "UPDATE quotation_data set data ='" . $quotation_data . "' where quotation_id= " . strval($quotation->id);
+            if ($conn->query($updateQuoteData) === TRUE) {
+                $q = findQuotationById($quotation->id, $conn);
+                echo json_encode($q);
             } else {
+                echo $updateQuoteData;
                 echo("Error description: " . mysqli_error($conn));
             }
         } else {
+            echo $updateQuote;
             echo("Error description: " . mysqli_error($conn));
         }
     }
@@ -142,6 +204,25 @@ function strItem($value)
 {
     return "'" . $value . "'";
 
+}
+
+function loadUtilities($conn)
+{
+    $utilities = array();
+    $sql = "select * from utility";
+
+    if ($result = $conn->query($sql)) {
+        $row_cnt = $result->num_rows;
+
+        while ($row = $result->fetch_assoc()) {
+            array_push($utilities, new Utility($row["name"], $row["total"], $row["id"]));
+        }
+        $result->close();
+    } else {
+        echo("Error description: " . mysqli_error($conn));
+    }
+
+    return $utilities;
 }
 
 function loadAllOtherCost($conn)
@@ -190,6 +271,21 @@ function findQuotationDataById($id, $conn)
     }
 }
 
+function findQuotationById($id, $conn)
+{
+    $sql = "SELECT * FROM quotation where id = " . $id;
+    if ($result = $conn->query($sql)) {
+        while ($row = $result->fetch_assoc()) {
+            $quotation = loadQuotation($row);
+            $result->close();
+            return $quotation;
+        }
+    } else {
+        echo $sql;
+        echo("Error description: " . mysqli_error($conn) . $sql);
+    }
+}
+
 function findQuotations($name, $from, $to, $conn)
 {
     if ($name == null) {
@@ -225,7 +321,11 @@ function loadQuotation($row)
 {
     $quotation = new Quotation($row['client_name'], $row['wedding_date'], $row['quote_date'], $row['event_type'], $row['event_time'], $row['location'], $row['description']);
     $quotation->id = $row['id'];
+    $quotation->approved = $row['approved'];
 
+    if ($quotation->approved == 1) {
+        $quotation->isApproved = true;
+    }
     return $quotation;
 }
 

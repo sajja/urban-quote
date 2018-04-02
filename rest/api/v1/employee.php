@@ -4,17 +4,8 @@ require_once('db.php');
 require('abstract_rest.php');
 function handleGet()
 {
-    $parms = $_SERVER['QUERY_STRING'];
     $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
-    $exploded = array();
-    parse_str($parms, $exploded);
-    $filter = null;
-    if (isset($exploded['filter'])) {
-        $filter = $exploded['filter'];
-        echo json_encode(loadFilteredItems($filter, $conn));
-    } else {
-        echo json_encode(loadAllItems( $conn));
-    }
+    echo json_encode(loadAllEmployees($conn));
     $conn->close();
 }
 
@@ -38,16 +29,13 @@ function handlePost()
 {
     $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $payload = file_get_contents('php://input');
-    $itemsJson = json_decode($payload, false);
+    $empsJson = json_decode($payload, false);
 
-    foreach ($itemsJson as $itemJson) {
-        $item = Item::parse($itemJson);
-        saveOrUpdateItem($item, $conn);
+    foreach ($empsJson as $empJson) {
+        $emp = Employee::parse($empJson);
+        saveOrUpdateEmployee($emp, $conn);
     }
-//
-//    $json = json_encode(saveOrUpdateItem($res, $conn));
-//    $conn->close();
-//    echo $payload;
+    echo $payload;
 }
 
 function createResource($uri, $params)
