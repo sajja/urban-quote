@@ -596,7 +596,7 @@ require_once('authenticate.php');
                                         <th colspan="3">Earnings</th>
                                     </tr>
                                     <tr>
-                                        <td>Total paid</td>
+                                        <td>Bill value</td>
                                         <td><input ng-model="quoteData.totalPaid"/></td>
                                     </tr>
                                     <tr>
@@ -1014,12 +1014,12 @@ require_once('authenticate.php');
 
                 }
 
-                $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
+                $http.get('rest/api/v1/flower.php').then(function (response) {
                     $scope.freshFlowers = response.data;
                 });
 
 
-                $http.get('http://localhost/urban/rest/api/v1/item.php').then(function (response) {
+                $http.get('rest/api/v1/item.php').then(function (response) {
                     $scope.configuredItems = response.data;
                     self.allConfiguredItems = loadAll();
                 });
@@ -1047,7 +1047,7 @@ require_once('authenticate.php');
 
                 $scope.refreshMasterData = function (c) {
                     if (!$scope.quotation.isApproved) {
-                        $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
+                        $http.get('rest/api/v1/flower.php').then(function (response) {
                             $scope.freshFlowers = response.data;
 
                             angular.forEach($scope.freshFlowers, function (f) {
@@ -1072,17 +1072,17 @@ require_once('authenticate.php');
                             });
                         });
 
-                        $http.get('http://localhost/urban/rest/api/v1/item.php').then(function (response) {
+                        $http.get('rest/api/v1/item.php').then(function (response) {
                             $scope.configuredItems = response.data;
                             self.allConfiguredItems = loadAll();
                         });
 
-                        $http.get('http://localhost/urban/rest/api/v1/utility.php').then(function (response) {
+                        $http.get('rest/api/v1/utility.php').then(function (response) {
                             $scope.quoteData.shopRunningCost.utilities = response.data;
                         });
 
 
-                        $http.get('http://localhost/urban/rest/api/v1/employee.php').then(function (response) {
+                        $http.get('rest/api/v1/employee.php').then(function (response) {
                             $scope.quoteData.shopRunningCost.employees = response.data;
                         });
                     } else {
@@ -1330,7 +1330,7 @@ require_once('authenticate.php');
                 };
 
                 $scope.createNewQuote = function () {
-                    $http.put('http://localhost/urban/rest/api/v1/quotation.php', $scope.data).then(function (response) {
+                    $http.put('rest/api/v1/quotation.php', $scope.data).then(function (response) {
                         $scope.quoteData = response.data;
                         $scope.quotationDate = new Date();
                         $scope.weddingDate = new Date();
@@ -1358,12 +1358,13 @@ require_once('authenticate.php');
                     //1st we validate
                     if (isFormValid) {
                         $scope.quotation.data = $scope.quoteData;
-                        var res = $http.post('/urban/rest/api/v1/quotation.php', $scope.quotation);
+                        var res = $http.post('rest/api/v1/quotation.php', $scope.quotation);
                         res.success(function (data, status, headers, config) {
                             console.log(JSON.stringify(data));
                             if (data.code === 200) {
                                 Notify("Save success", null, null, 'success');
                                 $scope.quotation.data = $scope.quoteData;
+                                $scope.isDirty = false;
                             } else {
                                 Notify("Save failed" + JSON.stringify(data.data), null, null, 'danger');
                             }
@@ -1379,7 +1380,7 @@ require_once('authenticate.php');
                 };
 
                 $scope.search = function () {
-                    $http.get('http://localhost/urban/rest/api/v1/quotation.php/?name=' + $scope.name).then(function (response) {
+                    $http.get('rest/api/v1/quotation.php/?name=' + $scope.name).then(function (response) {
                         $scope.searchResult = response.data;
                     });
                 };
@@ -1399,7 +1400,7 @@ require_once('authenticate.php');
 
                 $scope.showQuotation = function (quotation) {
                     if (!$scope.isDirty) {
-                        $http.get('http://localhost/urban/rest/api/v1/quotation.php/' + quotation.id).then(function (response) {
+                        $http.get('rest/api/v1/quotation.php/' + quotation.id).then(function (response) {
                             $scope.quotation = quotation;
                             $scope.quoteData = response.data;
                             $scope.quotationDate = new Date(quotation.quotationDate);
@@ -1439,7 +1440,7 @@ require_once('authenticate.php');
 
                 $scope.newItem = function (component, type) {
                     //todo no need to call server. locally create the json
-                    $http.put('http://localhost/urban/rest/api/v1/item.php?type=' + type).then(function (response) {
+                    $http.put('rest/api/v1/item.php?type=' + type).then(function (response) {
                         if (type === 'minor') {
                             component.minorItem.push(response.data);
                         } else {
@@ -1571,7 +1572,7 @@ require_once('authenticate.php');
                 };
 
                 $scope.newComponent = function () {
-                    $http.put('/urban/rest/api/v1/component.php').then(function (response) {
+                    $http.put('rest/api/v1/component.php').then(function (response) {
                         var component = response.data;
                         component.id = Math.round((Math.random() * 100) + 1);
                         $scope.quoteData.components.push(component);
