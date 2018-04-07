@@ -2,14 +2,12 @@
 require_once('objects.php');
 require_once('db.php');
 require('abstract_rest.php');
-function handleGet()
+function handleGet($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     echo json_encode(loadAllEmployees($conn));
-    $conn->close();
 }
 
-function handlePut()
+function handlePut($conn)
 {
     $parms = $_SERVER['QUERY_STRING'];
     $exploded = array();
@@ -25,9 +23,8 @@ function handlePut()
     }
 }
 
-function handlePost()
+function handlePost($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $payload = file_get_contents('php://input');
     $empsJson = json_decode($payload, false);
 

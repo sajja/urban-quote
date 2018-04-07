@@ -2,13 +2,11 @@
 require_once('objects.php');
 require_once('db.php');
 require('abstract_rest.php');
-function handleGet()
+function handleGet($conn)
 {
     $parms = $_SERVER['QUERY_STRING'];
 
     $resource = createResource($_SERVER['PATH_INFO'], $parms);
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
-
     if ($resource === null) {
         $exploded = array();
         parse_str($parms, $exploded);
@@ -27,12 +25,10 @@ function handleGet()
     } else {
         echo findQuotationDataById($resource->name, $conn);
     }
-    $conn->close();
 }
 
-function handlePost()
+function handlePost($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $payload = file_get_contents('php://input');
     $jsonQuote = json_decode($payload, false);
 
@@ -43,13 +39,11 @@ function handlePost()
     } catch (Exception $e) {
         echo json_encode(new Response(500, 'Error', $e->getMessage()));
     }
-
-    $conn->close();
 }
 
-function handlePut()
+function handlePut($conn)
 {
-    echo json_encode(newQuotation());
+    echo json_encode(newQuotation($conn));
 }
 
 
@@ -59,7 +53,7 @@ function quoteFlower($flower)
     return new QuotedFlower($flower->name, $flower->buyRate, $flower->comBuyRate, $flower->sellRate, 0);
 }
 
-function newQuotation()
+function newQuotation($conn)
 {
     $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $components = array();

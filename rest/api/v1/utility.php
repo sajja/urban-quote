@@ -2,16 +2,13 @@
 require_once('objects.php');
 require_once('db.php');
 require('abstract_rest.php');
-function handleGet()
+function handleGet($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     echo json_encode(loadUtilities($conn));
-    $conn->close();
 }
 
-function handlePost()
+function handlePost($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $payload = file_get_contents('php://input');
     $utilityJson = json_decode($payload, false);
 
@@ -20,9 +17,7 @@ function handlePost()
         saveOrUpdateUtility($utill, $conn);
     }
     echo $payload;
-    $conn->close();
 }
-
 
 function createResource($uri, $params)
 {
