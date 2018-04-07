@@ -46,10 +46,12 @@ CREATE TABLE fresh_flower (
     sell_rate SMALLINT NOT NULL,
     PRIMARY KEY (id)
 );
+
 CREATE TABLE labour (
-    type CHAR(20),
+    id SMALLINT AUTO_INCREMENT,
+    type CHAR(20) NOT NULL UNIQUE ,
     rate SMALLINT NOT NULL,
-    PRIMARY KEY (type)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE employee (

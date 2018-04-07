@@ -1,3 +1,6 @@
+<?php
+require_once('authenticate.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -89,6 +92,28 @@
                 </table>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <div>Labour rates</div>
+                <table border="1" width="100%">
+                    <tr>
+                        <th colspan="2">Type</th>
+                        <th>Cost</th>
+                        <td><img src="images/new.png" height="30" width="30" ng-click="newLabour()"/></td>
+                    </tr>
+                    <tr ng-repeat="lab in labourer">
+                        <td colspan="2"><input type="hidden" ng-model="lab.id"/> <input ng-model="lab.type"/>
+                        </td>
+                        <td><input ng-model="lab.rate"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" align="right">
+                            <img src="images/save.jpg" height="30" width="30" ng-click="saveLabour()"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 </body>
@@ -104,6 +129,10 @@
             $scope.employees = response.data;
         });
 
+        $http.get('http://localhost/urban/rest/api/v1/labour.php').then(function (response) {
+            $scope.labourer = response.data;
+        });
+
         $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
             $scope.freshFlowers = response.data;
         });
@@ -117,6 +146,12 @@
         $scope.saveEmployee = function () {
             $http.post('http://localhost/urban/rest/api/v1/employee.php', $scope.employees).then(function (response) {
                 $scope.employees = response.data;
+            });
+        };
+        $scope.saveLabour = function () {
+            $http.post('http://localhost/urban/rest/api/v1/labour.php', $scope.labourer).then(function (response) {
+                $scope.labourer = response.data;
+                alert(response.data);
             });
         };
 
@@ -137,6 +172,14 @@
             $scope.employees.push({
                 'name': '',
                 'salary': '',
+                'new_item': true
+            });
+        };
+
+        $scope.newLabour = function () {
+            $scope.labourer.push({
+                'type': '',
+                'rate': '',
                 'new_item': true
             });
         };

@@ -37,8 +37,13 @@ function handlePost()
     $jsonQuote = json_decode($payload, false);
 
     $quotation = Quotation::parse($jsonQuote);
-//    echo $payload;
-    saveOrUpdateQuotation($quotation, json_encode($jsonQuote->data), $conn);
+    try {
+        $res = saveOrUpdateQuotation($quotation, json_encode($jsonQuote->data), $conn);
+        echo json_encode(new Response(200, '', $res));
+    } catch (Exception $e) {
+        echo json_encode(new Response(500, 'Error', $e->getMessage()));
+    }
+
     $conn->close();
 }
 

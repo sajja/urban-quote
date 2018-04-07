@@ -1,3 +1,6 @@
+<?php
+require_once('authenticate.php');
+?>
 <html lang="en-US">
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <script src="js/jquery.min.js"></script>
@@ -35,19 +38,28 @@
         background-color: darkgrey;
     }
 
+    td {
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
     input {
         background-color: lightcyan;
-        width: 100px;
+        width: 100%;
     }
 
     #container {
         height: 100%;
-
         font-size: 0;
     }
 
+    .componentHeaderRow {
+        margin-top: 3px;
+        background-color: #c7ddef;
+    }
+
     .headerRow {
-        margin-top: 5px;
+        margin-top: 3px;
         background-color: #5e5e5e;
     }
 
@@ -65,6 +77,14 @@
         font-size: 12px;
         padding-right: 10px;
         padding-top: 10px;
+    }
+
+    .total {
+        background-color: #23527c;
+    }
+
+    .subtotal {
+        background-color: #1b6d85;
     }
 
     .error {
@@ -102,7 +122,7 @@
                                              ng-click="confirmDelete()"/></td>
                                     <td><img src="images/items.png" height="30" width="30" ng-click="goToInventory()"/>
                                     </td>
-                                    <td><a href="shop.html"> <img src="images/shop.png" height="30" width="30"/></a>
+                                    <td><a href="shop.php"> <img src="images/shop.png" height="30" width="30"/></a>
                                     </td>
                                     <td><img src="images/refresh.png" height="30" width="30"
                                              ng-click="refreshMasterData()"/>
@@ -119,13 +139,13 @@
                 <table border="1" width="100%">
                     <tr>
                         <td>Search</td>
-                        <td><input ng-model="name"></td>
+                        <td><input ng-model="name" id="searchField"></td>
                         <td align="right">
                             <button ng-click="search()">&#128269;</button>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="3">
+                        <td colspan="4">
                             Search results
                         </td>
                     </tr>
@@ -133,7 +153,10 @@
                         <td colspan="2"><input ng-model="quotation.id" hidden/> <a href=""
                                                                                    ng-click="showQuotation(quotation)">{{quotation.clientName}}</a>
                         </td>
-                        <td> {{quotation.weddingDate}}</td>
+                        <td> {{quotation.weddingDate}} &nbsp;
+                            <img src="images/approve.png" height="30" width="30" style="padding-top:5px;"
+                                 ng-show="quotation.isApproved"/>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -161,13 +184,14 @@
                                     </div>
                                     <div class="col-md-2">Event type</div>
                                     <div class="col-md-2"><select ng-model="quotation.eventType">
-                                        <option value="">Event type</option> <!-- not selected / blank option -->
-                                        <option value="Wedding">Wedding</option> <!-- not selected / blank option -->
-                                        <option value="Homecoming">Homecoming</option>
-                                        <!-- not selected / blank option -->
-                                        <option value="Bday">B'day</option> <!-- not selected / blank option -->
-                                        <option value="Party">Party</option> <!-- not selected / blank option -->
-                                    </select></div>
+                                            <option value="">Event type</option> <!-- not selected / blank option -->
+                                            <option value="Wedding">Wedding</option>
+                                            <!-- not selected / blank option -->
+                                            <option value="Homecoming">Homecoming</option>
+                                            <!-- not selected / blank option -->
+                                            <option value="Bday">B'day</option> <!-- not selected / blank option -->
+                                            <option value="Party">Party</option> <!-- not selected / blank option -->
+                                        </select></div>
                                     <div class="col-md-1">Location</div>
                                     <div class="col-md-3"><input class="required" style="width: 100%;"
                                                                  ng-model="quotation.location" name="location"></div>
@@ -233,9 +257,10 @@
                                     <tr ng-repeat="c in quoteData.components">
                                         <td><input ng-model="c.name" style="width: 90%" name="component"
                                                    class="required"/> &nbsp;<span
-                                                ng-click="scrollTo('c-'+c.id)">▼</span></td>
+                                                    ng-click="scrollTo('c-'+c.id)">▼</span></td>
                                         <td><input type="checkbox" ng-model="c.mandetory"/></td>
                                         <td><input ng-model="c.qtty" name="qtty" class="required digit"/></td>
+                                        <td>{{c.total |number:0}}</td>
                                         <td>{{c.total |number:0}}</td>
                                         <td><input ng-model="c.labourPerc" class="required digit" name="labour"/></td>
                                         <td><input ng-model="c.floristPerc" class="required digit" name="florist"/></td>
@@ -244,10 +269,11 @@
                                         <td><input ng-model="c.profitPerc" class="required digit" name="profit"/></td>
                                         <td>{{quotation.riskFactor}}</td>
                                         <td>{{c.mandetory ?(c.totalProfit*c.qtty | number:0) :0}}</td>
-                                        <td colspan="2">{{c.mandetory ? (c.total * c.qtty): 0}}</td>
+                                        <td colspan="2">{{c.mandetory ? ( (c.total * c.qtty)| number:0): 0}}</td>
                                     </tr>
                                     <tr>
                                         <td>Sub totals</td>
+                                        <td>&nbsp;</td>
                                         <td>&nbsp;</td>
                                         <td>&nbsp;</td>
                                         <td>{{sumAllLabourPerc(quoteData.components)}}</td>
@@ -257,18 +283,18 @@
                                         <td>{{sumAllProfit(quoteData.components)}}</td>
                                         <td colspan="2">
                                             {{sumAllComponents(quoteData.components)}}
-                                            {{quoteData.componentsCost}}
+                                            {{quoteData.componentsCost | number:0}}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>Transport</td>
-                                        <td colspan="8">&nbsp;</td>
+                                        <td colspan="9">&nbsp;</td>
                                         <td colspan="2"><input ng-model="quoteData.transport" name="transport"
                                                                class="digit"/></td>
                                     </tr>
                                     <tr>
                                         <td>Final quote</td>
-                                        <td colspan="8">&nbsp;</td>
+                                        <td colspan="9">&nbsp;</td>
                                         <td colspan="2">{{createFinalQuote()|number:0}}</td>
                                     </tr>
                                 </table>
@@ -277,7 +303,7 @@
                         <div class="row headerRow" style="margin-top: 4px;">
                             <div class="col-lg-11"><h5>Master data applied to quotation</h5></div>
                             <div class="col-lg-1" style="text-align: right"><h4><span
-                                    ng-click="expandCollaspeMasterData()">↓</span></h4></div>
+                                            ng-click="expandCollaspeMasterData()">↓</span></h4></div>
                         </div>
                         <div class="row dataRow" ng-show="toggleMasterData">
                             <div class="row">
@@ -509,7 +535,7 @@
                         <div class="row headerRow" style="margin-top: 3px">
                             <div class="col-lg-11"><h5>Quoted costs vs actual costs</h5></div>
                             <div class="col-lg-1" style="text-align: right"><h4><span
-                                    ng-click="expandCollaspeActual()">↓</span></h4></div>
+                                            ng-click="expandCollaspeActual()">↓</span></h4></div>
                         </div>
                         <div class="row dataRow" ng-show="toggleActual">
                             <div class="col-lg-4">
@@ -603,7 +629,7 @@
 
                         </div>
                         <div class="row dataRow" ng-repeat="component in quoteData.components" style="margin-top: 4px;">
-                            <div class="col-lg-12 headerRow">
+                            <div class="col-lg-12 componentHeaderRow">
                                 <table width="100%">
                                     <tr>
                                         <td>
@@ -643,7 +669,7 @@
                                             <th>Desription</th>
                                             <th>Rate</th>
                                             <th>Qtty</th>
-                                            <th>Cost</th>
+                                            <th width="10%">Cost</th>
                                         </tr>
                                         <tr class="sub-component-header">
                                             <td colspan="4" style="padding-top: 1em;">Configured Items</td>
@@ -711,7 +737,7 @@
                                         <tr class="sub-component-header">
                                             <td colspan="4" style="padding-top: 1em;">Fresh flowers</td>
                                             <td style="padding-top: 1em;"><h4><span
-                                                    ng-click="newFlower(component)">➕</span></h4></td>
+                                                            ng-click="newFlower(component)">➕</span></h4></td>
                                         </tr>
                                         <tr ng-repeat="flower in component.freshFlowers">
                                             <td>
@@ -720,7 +746,7 @@
                                                         ng-change="{{calculateSellRate(flower)}}" name="ff"
                                                         class="required"></select>
                                             </td>
-                                            <td>&nbsp;</td>
+                                            <td><input ng-model="flower.description"/></td>
                                             <td>
                                                 {{flower.sellRate}}
                                             </td>
@@ -755,7 +781,7 @@
                                         </tr>
                                         <tr>
                                             <td>Artificial leaves</td>
-                                            <td colspan="3">description</td>
+                                            <td colspan="2">description</td>
                                             <td><input ng-model="component.artificialLeaves" name="al" class="digit">
                                             <td>
                                         </tr>
@@ -767,7 +793,7 @@
                                                 {{component.totalArtificialFlowerCost}}
                                             </td>
                                         </tr>
-                                        <tr class="calculated-field-row">
+                                        <tr class="calculated-field-row subtotal">
                                             <td>Total flower cost</td>
                                             <td colspan="3"></td>
                                             <td>
@@ -812,7 +838,7 @@
                                                 {{component.totalOtherCost}}
                                             </td>
                                         </tr>
-                                        <tr class="calculated-field-row">
+                                        <tr class="calculated-field-row subtotal">
                                             <td>Total before profit</td>
                                             <td>Total before profit</td>
                                             <td colspan="2"></td>
@@ -826,10 +852,10 @@
                                             <td colspan="3"></td>
                                             <td>
                                                 {{calculateProfitForComponent(component) }}
-                                                {{component.totalProfit}}
+                                                {{component.totalProfit|number}}
                                             </td>
                                         </tr>
-                                        <tr class="calculated-field-row">
+                                        <tr class="calculated-field-row total">
                                             <td>Component final cost</td>
                                             <td colspan="3"></td>
                                             <td>
@@ -879,9 +905,11 @@
     $("#quotationForm").validate();
 
 
-    $(':input').change(function () {
-        var $scope = angular.element($('[ng-controller]')).scope();
-        $scope.isDirty = true;
+    $(':input').change(function (event) {
+        if (event.target.id !== 'searchField') {
+            var $scope = angular.element($('[ng-controller]')).scope();
+            $scope.isDirty = true;
+        }
     });
 
 
@@ -944,12 +972,8 @@
                 $scope.configuredItems = [];
                 $scope.isQuotationLoaded = false;
 
-                this.myDate = new Date();
-                this.isOpen = false;
-
-
                 // list of `state` value/display objects
-                self.selectedItem = null;
+                // self.selectedItem = null;
                 self.searchText = null;
                 self.querySearch = querySearch;
 
@@ -962,7 +986,7 @@
                     var deferred = $q.defer();
                     $timeout(function () {
                         deferred.resolve(results);
-                    }, Math.random() * 1000, false);
+                    }, 0, false);
                     return deferred.promise;
                 }
 
@@ -1022,46 +1046,48 @@
                 };
 
                 $scope.refreshMasterData = function (c) {
-                    $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
-                        $scope.freshFlowers = response.data;
+                    if (!$scope.quotation.isApproved) {
+                        $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
+                            $scope.freshFlowers = response.data;
 
-                        angular.forEach($scope.freshFlowers, function (f) {
-                            var found = false;
+                            angular.forEach($scope.freshFlowers, function (f) {
+                                var found = false;
 
-                            angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (quotedFF) {
-                                if (quotedFF.name === f.name) {
-                                    found = true;
+                                angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (quotedFF) {
+                                    if (quotedFF.name === f.name) {
+                                        found = true;
+                                    }
+                                });
+
+
+                                if (!found) {
+                                    $scope.quoteData.quotedFreshFlowerRates.push({
+                                        'name': f.name,
+                                        'buyRate': f.buyRate,
+                                        'commRate': f.commRate,
+                                        'qtty': 0,
+                                        'sellRate': f.sellRate
+                                    })
                                 }
                             });
-
-
-                            if (!found) {
-                                $scope.quoteData.quotedFreshFlowerRates.push({
-                                    'name': f.name,
-                                    'buyRate': f.buyRate,
-                                    'commRate': f.commRate,
-                                    'qtty': 0,
-                                    'sellRate': f.sellRate
-                                })
-                            }
                         });
-                    });
 
-                    $http.get('http://localhost/urban/rest/api/v1/item.php').then(function (response) {
-                        $scope.configuredItems = response.data;
-                        self.allConfiguredItems = loadAll();
-                    });
+                        $http.get('http://localhost/urban/rest/api/v1/item.php').then(function (response) {
+                            $scope.configuredItems = response.data;
+                            self.allConfiguredItems = loadAll();
+                        });
 
-                    $http.get('http://localhost/urban/rest/api/v1/utility.php').then(function (response) {
-                        $scope.quoteData.shopRunningCost.utilities = response.data;
-                    });
-
-
-                    $http.get('http://localhost/urban/rest/api/v1/employee.php').then(function (response) {
-                        $scope.quoteData.shopRunningCost.employees = response.data;
-                    });
+                        $http.get('http://localhost/urban/rest/api/v1/utility.php').then(function (response) {
+                            $scope.quoteData.shopRunningCost.utilities = response.data;
+                        });
 
 
+                        $http.get('http://localhost/urban/rest/api/v1/employee.php').then(function (response) {
+                            $scope.quoteData.shopRunningCost.employees = response.data;
+                        });
+                    } else {
+                        Notify('You cannot refresh master data on an approved quotation', null, null, 'danger');
+                    }
                 };
 
                 $scope.calculateTotalMaterialCost = function (c) {
@@ -1299,7 +1325,6 @@
                     } else {
                         $scope.quotation.approved = 1;
                         $scope.isDirty = true;
-
                         Notify('Quotation approved. Please save to confirm', null, null, 'success');
                     }
                 };
@@ -1318,6 +1343,7 @@
                     });
                 };
 
+
                 $scope.newQuote = function () {
                     if ($scope.isDirty) {
                         Notify('<h4>You will loose unsaved data <button onclick="newQuote()">Ok</button></h4>', null, null, 'warning');
@@ -1334,10 +1360,13 @@
                         $scope.quotation.data = $scope.quoteData;
                         var res = $http.post('/urban/rest/api/v1/quotation.php', $scope.quotation);
                         res.success(function (data, status, headers, config) {
-                            // Notify("Save success", null, null, 'success');
                             console.log(JSON.stringify(data));
-                            $scope.quotation = data;
-                            $scope.quotation.data = $scope.data;
+                            if (data.code === 200) {
+                                Notify("Save success", null, null, 'success');
+                                $scope.quotation.data = $scope.quoteData;
+                            } else {
+                                Notify("Save failed" + JSON.stringify(data.data), null, null, 'danger');
+                            }
                         });
 
                         res.error(function (data, status, headers, config) {
@@ -1369,15 +1398,18 @@
 
 
                 $scope.showQuotation = function (quotation) {
-                    $http.get('http://localhost/urban/rest/api/v1/quotation.php/' + quotation.id).then(function (response) {
-                        $scope.quotation = quotation;
-                        $scope.quoteData = response.data;
-                        $scope.quotationDate = new Date(quotation.quotationDate);
-                        $scope.weddingDate = new Date(quotation.weddingDate);
-                        $scope.isQuotationLoaded = true;
-                    });
+                    if (!$scope.isDirty) {
+                        $http.get('http://localhost/urban/rest/api/v1/quotation.php/' + quotation.id).then(function (response) {
+                            $scope.quotation = quotation;
+                            $scope.quoteData = response.data;
+                            $scope.quotationDate = new Date(quotation.quotationDate);
+                            $scope.weddingDate = new Date(quotation.weddingDate);
+                            $scope.isQuotationLoaded = true;
+                        });
+                    } else {
+                        Notify('Quotation is not saved. Please save it first.', null, null, 'danger');
+                    }
                 };
-
 
                 $scope.expandCollaspeComponent = function (component) {
                     component.visible = !component.visible;
@@ -1413,6 +1445,7 @@
                         } else {
                             component.items.push(response.data);
                         }
+                        $scope.isDirty = true;
                     });
                 };
 
@@ -1479,7 +1512,7 @@
                 };
 
                 $scope.delete = function () {
-                    alert('delte confirmed');
+                    alert('delete confirmed');
                 };
 
                 $scope.confirmDelete = function () {
@@ -1527,7 +1560,7 @@
 
                 $scope.goToInventory = function () {
                     if (!$scope.isDirty) {
-                        window.location = "inventory.html";
+                        window.location = "inventory.php";
                     } else {
                         Notify("Document is not saved. Please save it ")
                     }
@@ -1537,21 +1570,12 @@
                     item.hire_rate = item.rate * item.qtty;
                 };
 
-
-                $scope.calculateApproval = function () {
-                    if ($scope.quotation.approved === "1") {
-                        $scope.quotation.status = "approved";
-                        // $scope.quotation.isApproved= true;
-                    } else {
-                        // $scope.quotation.isApproved= false;
-                    }
-                };
-
                 $scope.newComponent = function () {
                     $http.put('/urban/rest/api/v1/component.php').then(function (response) {
                         var component = response.data;
                         component.id = Math.round((Math.random() * 100) + 1);
                         $scope.quoteData.components.push(component);
+                        $scope.isDirty = true;
                     });
                 };
 

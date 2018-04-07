@@ -40,9 +40,6 @@ class Quotation
         $quotation->id = $json->id;
         $quotation->approved = $json->approved;
 
-        $quotationData = QuotationData::parse($json->data);
-        $quotation->data = $quotationData;
-
         return $quotation;
     }
 }
@@ -63,41 +60,6 @@ class QuotationData
     public $quotedOtherCosts;
     public $bestCaseFlowerProfit = 0;
     public $avgCaseFlowerProfit = 0;
-
-    static function parse($json)
-    {
-        $quote = new QuotationData();
-
-        $quote->componentsCost = $json->componentsCost;
-        $quote->quotationValue = $json->quotationValue;
-        $quote->riskFactor = $json->riskFactor;
-        $quote->comments = $json->comments;
-        $quote->bestCaseFlowerProfit = $json->bestCaseFlowerProfit;
-        $quote->avgCaseFlowerProfit = $json->avgCaseFlowerProfit;
-
-        $components = array();
-        for ($x = 0; $x < count($json->components); $x++) {
-            array_push($components, Component::parse($json->components[$x]));
-        }
-        $quote->components = $components;
-
-        $quotedFreshFlowerRates = array();
-        for ($x = 0; $x < count($json->quotedFreshFlowerRates); $x++) {
-            array_push($quotedFreshFlowerRates, QuotedFlower::parse($json->quotedFreshFlowerRates[$x]));
-        }
-        $quote->quotedFreshFlowerRates = $quotedFreshFlowerRates;
-
-        $quotedLabour = array();
-        for ($x = 0; $x < count($json->quotedLabourRates->labour); $x++) {
-            array_push($quotedLabour, QuotedLabour::parse($json->quotedLabourRates->labour[$x]));
-        }
-
-        $quote->quotedLabourRates = $quotedLabour;
-        $quote->quotedFloristRates = QuotedFlorist::parse($json->quotedFloristRates);
-        $quote->quotedOtherCosts = QuotedOtherCosts::parse($json->quotedOtherCosts);
-
-        return $quote;
-    }
 }
 
 class Component
@@ -143,57 +105,6 @@ class Component
 
     public $totalBeforeProfit;
     public $total;
-
-
-    static function parse($json)
-    {
-        $component = new Component();
-
-        $minorItems = array();
-        $freshFlowers = array();
-
-        $component->name = $json->name;
-        $component->type = $json->type;
-        $component->mandetory = $json->mandetory;
-        $component->description = $json->description;
-        $component->qtty = $json->qtty;
-        $component->labourRates = $json->labourRates;
-        $component->floristRates = $json->floristRates;
-        $component->otherCostRates = $json->otherCostRates;
-        $component->silkFlowers = $json->silkFlowers;
-        $component->otherFlowers = $json->otherFlowers;
-        $component->silkFlowerRate = $json->silkFlowerRate;
-        $component->otherFlowerRate = $json->otherFlowerRate;
-        $component->artificialLeaves = $json->artificialLeaves;
-        $component->labourPerc = $json->labourPerc;
-        $component->floristPerc = $json->floristPerc;
-        $component->otherCostPerc = $json->otherCostPerc;
-        $component->profitPerc = $json->profitPerc;
-        $component->timeRiskPerc = $json->timeRiskPerc;
-        $component->totalLabourCost = $json->totalLabourCost;
-        $component->totalFloristCost = $json->totalFloristCost;
-        $component->totalOtherCost = $json->totalOtherCost;
-        $component->totalProfit = $json->totalProfit;
-        $component->totalMaterialCost = $json->totalMaterialCost;
-        $component->totalFreshFlowerCost = $json->totalFreshFlowerCost;
-        $component->totalArtificialFlowerCost = $json->totalArtificialFlowerCost;
-        $component->totalItemCost = $json->totalItemCost;
-        $component->totalBeforeProfit = $json->totalBeforeProfit;
-        $component->total = $json->total;
-
-        for ($x = 0; $x < count($json->minorItem); $x++) {
-            array_push($minorItems, MinorItem::parse($json->minorItem[$x]));
-        }
-
-        for ($x = 0; $x < count($json->freshFlowers); $x++) {
-            array_push($freshFlowers, QuotedFlower::parse($json->freshFlowers[$x]));
-        }
-
-
-        $component->minorItem = $minorItems;
-        $component->freshFlowers = $freshFlowers;
-        return $component;
-    }
 }
 
 class MinorItem
@@ -215,26 +126,6 @@ class MinorItem
         $item = new MinorItem($json->name, $json->description, $json->cost);
         $item->order = $json->order;
 
-        return $item;
-    }
-}
-
-class QuotedItem
-{
-    public $item;
-    public $qtty;
-    public $rate;
-
-    function __construct($item, $qtty, $rate)
-    {
-        $this->item = $item;
-        $this->qtty = $qtty;
-        $this->rate = $rate;
-    }
-
-    static function parse($json)
-    {
-        $item = new QuotedItem(Item::parse($json->item), $json->qtty, $json->rate);
         return $item;
     }
 }
@@ -340,13 +231,28 @@ class QuotedLabour
     }
 }
 
+class Response
+{
+    public $code;
+    public $description;
+    public $data;
+
+    function __construct($code, $description, $data)
+    {
+        $this->code = $code;
+        $this->description = $description;
+        $this->data = $data;
+    }
+}
+
 class Labour
 {
+    public $id;
     public $type;
     public $rate;
     public $qtty = 1;
     public $cost;
-    public $actual=0;
+    public $actual = 0;
 
 
     function __construct($type, $rate)
@@ -360,6 +266,7 @@ class Labour
         $labour = new Labour($json->type, $json->rate);
         $labour->qtty = $json->qtty;
         $labour->cost = $json->cost;
+        $labour->id = $json->id;
         return $labour;
     }
 }
@@ -553,7 +460,7 @@ class Employee
 
     static function parse($json)
     {
-        $emp =  new Employee($json->name, $json->salary);
+        $emp = new Employee($json->name, $json->salary);
         $emp->id = $json->id;
         return $emp;
     }
