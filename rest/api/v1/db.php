@@ -1,10 +1,5 @@
 <?php
 
-$servername = "localhost";
-$username = "root";
-$password = "root";
-
-
 function loadAllItems($conn)
 {
     $sql = "SELECT * FROM item";
@@ -102,7 +97,7 @@ function loadAllLabour($conn)
         }
         $result->close();
     } else {
-        throw new Exception("Error");
+        throw new Exception("Error " . mysqli_error($conn) );
     }
     return $labour;
 }
@@ -237,37 +232,6 @@ function loadUtilities($conn)
 
     return $utilities;
 }
-
-function loadAllOtherCost($conn)
-{
-    if ($result = $conn->query('SELECT * FROM other_cost_master')) {
-        $misc = 0;
-        $tp = 0;
-        $paint = 0;
-
-        while ($row = $result->fetch_assoc()) {
-            $name = $row["name"];
-            $total = $row["total"];
-            if ($name === "Transport hidden") {
-                $tp = $total;
-            } else if ($name === "Misc") {
-                $misc = $total;
-            }
-        }
-        $otherCosts = new OtherCosts();
-        $otherCosts->hiddenTransport = $tp;
-        $otherCosts->misc = $misc;
-        $otherCosts->paint = $paint;
-        //TODO: Add others
-
-        $result->close();
-        return $otherCosts;
-    } else {
-        throw new Exception("Error");
-    }
-
-}
-
 
 function findQuotationDataById($id, $conn)
 {

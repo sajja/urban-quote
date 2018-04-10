@@ -83,15 +83,14 @@ require_once('authenticate.php');
         $scope.filteredInventory = [];
 
         $scope.save = function () {
-            $http.post('http://localhost/urban/rest/api/v1/item.php/', $scope.filteredInventory).then(function (response) {
+            $http.post('rest/api/v1/item.php/', $scope.filteredInventory).then(function (response) {
                 var res = $http.post('/urban/rest/api/v1/quotation.php', $scope.quotation);
                 res.success(function (data, status, headers, config) {
-                    alert(JSON.stringify(response.data));
-                    // Notify("Save success", null, null, 'success');
+                    Notify("Save success", null, null, 'success');
                 });
 
                 res.error(function (data, status, headers, config) {
-                    // Notify("Save failed: " + JSON.stringify({data: data}), null, null, 'danger');
+                    Notify("Save failed: " + JSON.stringify({data: data}), null, null, 'danger');
                 });
             });
         };
@@ -108,7 +107,7 @@ require_once('authenticate.php');
         };
 
         $scope.search = function () {
-            $http.get('http://localhost/urban/rest/api/v1/item.php/?filter=' + $scope.searchTerm).then(function (response) {
+            $http.get('rest/api/v1/item.php/?filter=' + $scope.searchTerm).then(function (response) {
                 $scope.filteredInventory = response.data;
             });
         }

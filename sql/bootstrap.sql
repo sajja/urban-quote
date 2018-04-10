@@ -50,14 +50,14 @@ CREATE TABLE fresh_flower (
 CREATE TABLE labour (
     id SMALLINT AUTO_INCREMENT,
     type CHAR(20) NOT NULL UNIQUE ,
-    rate SMALLINT NOT NULL,
+    rate INT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE employee (
     id SMALLINT NOT NULL  AUTO_INCREMENT,
     name CHAR(20) UNIQUE,
-    salary SMALLINT NOT NULL,
+    salary INT NOT NULL,
     PRIMARY KEY (id)
 );
 

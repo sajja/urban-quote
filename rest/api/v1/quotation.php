@@ -55,12 +55,11 @@ function quoteFlower($flower)
 
 function newQuotation($conn)
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
     $components = array();
     $flowers = loadAllFreshFlowers($conn);
     $labourers = loadAllLabour($conn);
     $employees = loadAllEmployees($conn);
-    $otherCosts = loadAllOtherCost($conn);
+//    $otherCosts = loadAllOtherCost($conn);
 
     $quotedFreshFlowerRates = array();
 
@@ -91,13 +90,7 @@ function newQuotation($conn)
 
     $quotationData->shopRunningCost = $shopRunningCost;
     $quotationData->quotedOtherCosts = new QuotedOtherCosts();
-    $quotationData->quotedOtherCosts->paint = $otherCosts->paint;
-    $quotationData->quotedOtherCosts->misc = $otherCosts->misc;
-    $quotationData->quotedOtherCosts->cleaning = $otherCosts->cleaning;
-    $quotationData->quotedOtherCosts->food = $otherCosts->food;
-    $quotationData->quotedOtherCosts->hiddenTransport = $otherCosts->hiddenTransport;
 
-    $conn->close();
     return $quotationData;
 }
 

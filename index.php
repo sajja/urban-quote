@@ -124,9 +124,8 @@ require_once('authenticate.php');
                                     </td>
                                     <td><a href="shop.php"> <img src="images/shop.png" height="30" width="30"/></a>
                                     </td>
-                                    <td><img src="images/refresh.png" height="30" width="30"
-                                             ng-click="refreshMasterData()"/>
-                                    </td>
+                                    <td><img src="images/refresh.png" height="30" width="30" ng-click="refreshMasterData()" title="Refresh flower/item data"/> </td>
+                                    <td><img src="images/refresh-all.png" height="30" width="30" ng-click="refreshAll()" title="Warning: This will change the quotation value. Never do this on a already sent quotation"/> </td>
                                 </tr>
                             </table>
                         </div>
@@ -242,15 +241,15 @@ require_once('authenticate.php');
                                     <tr>
                                         <th>Component</th>
                                         <th>Mandetory</th>
-                                        <th>Qtty</th>
+                                        <th width="4%">Qtty</th>
                                         <th>Rate</th>
-                                        <th>Labour %</th>
-                                        <th>Florist %</th>
-                                        <th>Other %</th>
-                                        <th>Profit %</th>
-                                        <th>Risk factor %</th>
+                                        <th width="4%">Labour %</th>
+                                        <th width="4%"> Florist %</th>
+                                        <th width="4%">Other %</th>
+                                        <th width="4%">Profit %</th>
+                                        <th width="4%">Risk factor %</th>
                                         <th>Total profit</th>
-                                        <th>Qute</th>
+                                        <th>Quote</th>
                                         <th><span style="color: #5cb85c;text-align: center"
                                                   ng-click="newComponent()"><h2>➕</h2></span></th>
                                     </tr>
@@ -260,7 +259,6 @@ require_once('authenticate.php');
                                                     ng-click="scrollTo('c-'+c.id)">▼</span></td>
                                         <td><input type="checkbox" ng-model="c.mandetory"/></td>
                                         <td><input ng-model="c.qtty" name="qtty" class="required digit"/></td>
-                                        <td>{{c.total |number:0}}</td>
                                         <td>{{c.total |number:0}}</td>
                                         <td><input ng-model="c.labourPerc" class="required digit" name="labour"/></td>
                                         <td><input ng-model="c.floristPerc" class="required digit" name="florist"/></td>
@@ -444,16 +442,16 @@ require_once('authenticate.php');
                                             <th colspan="3">Shop running cost</th>
                                         </tr>
                                         <tr ng-repeat="src in quoteData.shopRunningCost.utilities">
-                                            <td colspan="2">{{src.name}}</td>
+                                            <td colspan="3">{{src.name}}</td>
                                             <td>{{src.cost}}</td>
                                         </tr>
                                         <tr>
-                                            <td colspan="3">Labour</td>
+                                            <td colspan="4">Labour</td>
                                         </tr>
                                         <tr ng-repeat="emp in quoteData.shopRunningCost.employees">
                                             <td>&nbsp;</td>
                                             <td>{{emp.name}}</td>
-                                            <td><input ng-model="emp.salary" class="required digit"/>
+                                            <td colspan="2"><input ng-model="emp.salary" class="required digit"/>
                                             <td>
                                         </tr>
                                         <tr>
@@ -913,53 +911,6 @@ require_once('authenticate.php');
     });
 
 
-    Notify = function (text, callback, close_callback, style) {
-
-        var time = '10000';
-        var $container = $('#notifications');
-        var icon = '<i class="fa fa-info-circle "></i>';
-
-        if (typeof style == 'undefined') style = 'warning';
-
-        var html = $('<div class="alert alert-' + style + '  hide">' + icon + " " + text + '</div>');
-
-        $('<a>', {
-            text: '×',
-            class: 'button close',
-            style: 'padding-left: 10px;',
-            href: '#',
-            click: function (e) {
-                e.preventDefault();
-                close_callback && close_callback();
-                remove_notice()
-            }
-        }).prependTo(html);
-
-        $container.prepend(html);
-        html.removeClass('hide').hide().fadeIn('slow');
-
-        function remove_notice() {
-            html.stop().fadeOut('slow').remove()
-        }
-
-        var timer = setInterval(remove_notice, time);
-
-        $(html).hover(function () {
-            clearInterval(timer);
-        }, function () {
-            timer = setInterval(remove_notice, time);
-        });
-
-        html.on('click', function () {
-            clearInterval(timer);
-            callback && callback();
-            remove_notice()
-        });
-
-
-    };
-
-
     (function () {
             'use strict';
             angular
@@ -1009,7 +960,8 @@ require_once('authenticate.php');
                     var lowercaseQuery = angular.lowercase(query);
 
                     return function filterFn(item) {
-                        return (item.value.includes(lowercaseQuery));
+                        // console.log("Query term: " + lowercaseQuery+" Current item search : " + item.value);
+                        return (angular.lowercase(item.value).includes(lowercaseQuery));
                     };
 
                 }
@@ -1045,7 +997,7 @@ require_once('authenticate.php');
                     return $scope.calculateTotalMaterialCost(c) + c.totalFlowerCost;
                 };
 
-                $scope.refreshMasterData = function (c) {
+                $scope.refreshAll = function (c) {
                     if (!$scope.quotation.isApproved) {
                         $http.get('rest/api/v1/flower.php').then(function (response) {
                             $scope.freshFlowers = response.data;
@@ -1088,6 +1040,39 @@ require_once('authenticate.php');
                     } else {
                         Notify('You cannot refresh master data on an approved quotation', null, null, 'danger');
                     }
+                };
+
+
+                $scope.refreshMasterData = function (c) {
+                    $http.get('rest/api/v1/flower.php').then(function (response) {
+                        $scope.freshFlowers = response.data;
+
+                        angular.forEach($scope.freshFlowers, function (f) {
+                            var found = false;
+
+                            angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (quotedFF) {
+                                if (quotedFF.name === f.name) {
+                                    found = true;
+                                }
+                            });
+
+
+                            if (!found) {
+                                $scope.quoteData.quotedFreshFlowerRates.push({
+                                    'name': f.name,
+                                    'buyRate': f.buyRate,
+                                    'commRate': f.commRate,
+                                    'qtty': 0,
+                                    'sellRate': f.sellRate
+                                })
+                            }
+                        });
+                    });
+
+                    $http.get('rest/api/v1/item.php').then(function (response) {
+                        $scope.configuredItems = response.data;
+                        self.allConfiguredItems = loadAll();
+                    });
                 };
 
                 $scope.calculateTotalMaterialCost = function (c) {
@@ -1393,8 +1378,12 @@ require_once('authenticate.php');
                     var a = new Date(date1);
                     var b = new Date(date2);
 
-                    var c = Math.abs(a - b);
-                    return new Date(c).getMonth();
+                    var d1Y = a.getFullYear();
+                    var d2Y = b.getFullYear();
+                    var d1M = a.getMonth();
+                    var d2M = b.getMonth();
+
+                    return (d2M + 12 * d2Y) - (d1M + 12 * d1Y);
                 };
 
 

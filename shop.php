@@ -45,7 +45,6 @@ require_once('authenticate.php');
                             <img src="images/save.jpg" height="30" width="30" ng-click="saveUtility()"/>
                         </td>
                     </tr>
-
                 </table>
             </div>
             <div class="col-lg-3">
@@ -121,42 +120,42 @@ require_once('authenticate.php');
     angular.module('firstApplication', ['ngMaterial', 'ngMessages']).controller('shopController', shopController);
 
     function shopController($scope, $http) {
-        $http.get('http://localhost/urban/rest/api/v1/utility.php').then(function (response) {
+        $http.get('rest/api/v1/utility.php').then(function (response) {
             $scope.utilities = response.data;
         });
 
-        $http.get('http://localhost/urban/rest/api/v1/employee.php').then(function (response) {
+        $http.get('rest/api/v1/employee.php').then(function (response) {
             $scope.employees = response.data;
         });
 
-        $http.get('http://localhost/urban/rest/api/v1/labour.php').then(function (response) {
+        $http.get('rest/api/v1/labour.php').then(function (response) {
             $scope.labourer = response.data;
         });
 
-        $http.get('http://localhost/urban/rest/api/v1/flower.php').then(function (response) {
+        $http.get('rest/api/v1/flower.php').then(function (response) {
             $scope.freshFlowers = response.data;
         });
 
         $scope.saveUtility = function () {
-            $http.post('http://localhost/urban/rest/api/v1/utility.php', $scope.utilities).then(function (response) {
+            $http.post('rest/api/v1/utility.php', $scope.utilities).then(function (response) {
                 $scope.utilities = response.data;
             });
         };
 
         $scope.saveEmployee = function () {
-            $http.post('http://localhost/urban/rest/api/v1/employee.php', $scope.employees).then(function (response) {
+            $http.post('rest/api/v1/employee.php', $scope.employees).then(function (response) {
                 $scope.employees = response.data;
             });
         };
         $scope.saveLabour = function () {
-            $http.post('http://localhost/urban/rest/api/v1/labour.php', $scope.labourer).then(function (response) {
+            $http.post('rest/api/v1/labour.php', $scope.labourer).then(function (response) {
                 $scope.labourer = response.data;
-                alert(response.data);
+                Notify("Save success", null, null, 'success');
             });
         };
 
         $scope.saveFlowers = function () {
-            $http.post('http://localhost/urban/rest/api/v1/flower.php', $scope.freshFlowers).then(function (response) {
+            $http.post('rest/api/v1/flower.php', $scope.freshFlowers).then(function (response) {
             });
         };
 
