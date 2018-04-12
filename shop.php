@@ -145,12 +145,14 @@ require_once('authenticate.php');
         $scope.saveEmployee = function () {
             $http.post('rest/api/v1/employee.php', $scope.employees).then(function (response) {
                 $scope.employees = response.data;
+                Notify("Save success", null, null, 'success');
             });
         };
         $scope.saveLabour = function () {
             $http.post('rest/api/v1/labour.php', $scope.labourer).then(function (response) {
                 $scope.labourer = response.data;
                 Notify("Save success", null, null, 'success');
+                Notify('You cannot refresh master data on an approved quotation', null, null, 'danger');
             });
         };
 

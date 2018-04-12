@@ -2,7 +2,7 @@ CREATE DATABASE  urbanste_master;
 
 CREATE TABLE item (
      id SMALLINT AUTO_INCREMENT,
-     name CHAR(30) NOT NULL UNIQUE,
+     name CHAR(255) NOT NULL UNIQUE,
      description CHAR(255),
      total INT,
      recovery_time SMALLINT,
@@ -33,7 +33,7 @@ CREATE TABLE quotation (
 CREATE TABLE quotation_data (
   id SMALLINT NOT NULL  AUTO_INCREMENT,
   quotation_id SMALLINT NOT NULL,
-  data VARCHAR(10000),
+  data LONGTEXT,
   PRIMARY KEY (id),
   FOREIGN KEY (quotation_id) REFERENCES quotation(id)
 );

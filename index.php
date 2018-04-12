@@ -315,7 +315,7 @@ require_once('authenticate.php');
                                             <td>Buy rate</td>
                                             <td>Avg buy rate</td>
                                             <td>Sell</td>
-                                            <td>Qtty required</td>
+                                            <td>Qtty </td>
                                             <td>Quoted</td>
                                             <td>Actual spent</td>
                                         </tr>
@@ -1515,7 +1515,6 @@ require_once('authenticate.php');
                 };
 
                 $scope.calculateFreshFlowerProfit = function () {
-
                     var cost = 0;
                     var sale = 0;
                     if ($scope.quoteData != null) {
@@ -1523,6 +1522,7 @@ require_once('authenticate.php');
                             cost = cost + parseInt(quotedFF.actual);
                             sale = sale + ((quotedFF.qtty * quotedFF.sellRate));
                         });
+                        console.log("Sale : " + sale + " Cost : "  + cost);
 
                         $scope.quoteData.freshFlowerProfit = sale - cost;
                         $scope.quoteData.freshFlowerCost = cost;
