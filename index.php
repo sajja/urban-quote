@@ -124,8 +124,11 @@ require_once('authenticate.php');
                                     </td>
                                     <td><a href="shop.php"> <img src="images/shop.png" height="30" width="30"/></a>
                                     </td>
-                                    <td><img src="images/refresh.png" height="30" width="30" ng-click="refreshMasterData()" title="Refresh flower/item data"/> </td>
-                                    <td><img src="images/refresh-all.png" height="30" width="30" ng-click="refreshAll()" title="Warning: This will change the quotation value. Never do this on a already sent quotation"/> </td>
+                                    <td><img src="images/refresh.png" height="30" width="30"
+                                             ng-click="refreshMasterData()" title="Refresh flower/item data"/></td>
+                                    <td><img src="images/refresh-all.png" height="30" width="30" ng-click="refreshAll()"
+                                             title="Warning: This will change the quotation value. Never do this on a already sent quotation"/>
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -315,7 +318,7 @@ require_once('authenticate.php');
                                             <td>Buy rate</td>
                                             <td>Avg buy rate</td>
                                             <td>Sell</td>
-                                            <td>Qtty </td>
+                                            <td>Qtty</td>
                                             <td>Quoted</td>
                                             <td>Actual spent</td>
                                         </tr>
@@ -425,7 +428,7 @@ require_once('authenticate.php');
                                             <td><input ng-model="quoteData.quotedOtherCosts.flowerWastagePerc"
                                                        name="floristPerc" class="digit"/>
                                             </td>
-                                            <td></td>
+                                            <td>{{calculateFlowerWastage() |  number:0}}</td>
                                         </tr>
                                         <tr>
                                             <td colspan="2">Total other costs</td>
@@ -501,37 +504,10 @@ require_once('authenticate.php');
                                         </tr>
                                     </table>
                                 </div>
-                                <div class="col-lg-3">
-                                    <table border="1">
-                                        <tr>
-                                            <th>Cost</th>
-                                            <th>Value</th>
-                                        </tr>
-                                        <tr>
-                                            <td>Artificial flowers</td>
-                                            <td>
-                                                {{calculateArtificialFlowerCost()}}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Fresh flower best case</td>
-                                            <td>{{bestCaseFlowerProfit()}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Fresh flower worse case</td>
-                                            <td>{{avgCaseFlowerProfit()}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Structures</td>
-                                            <td>{{calculateStructureCost()}}</td>
-                                        </tr>
-                                    </table>
-
-                                </div>
                             </div>
                         </div>
                         <div class="row headerRow" style="margin-top: 3px">
-                            <div class="col-lg-11"><h5>Quoted costs vs actual costs</h5></div>
+                            <div class="col-lg-11"><h5>Performance & Stats</h5></div>
                             <div class="col-lg-1" style="text-align: right"><h4><span
                                             ng-click="expandCollaspeActual()">↓</span></h4></div>
                         </div>
@@ -606,23 +582,28 @@ require_once('authenticate.php');
                             <div class="col-lg-4">
                                 <table border="1">
                                     <tr>
-                                        <td>Structures (Old ones)</td>
-                                        <td>Cost</td>
-                                        <td>95% recovery</td>
+                                        <th>Cost</th>
+                                        <th>Value</th>
                                     </tr>
                                     <tr>
                                         <td>Artificial flowers</td>
-                                        <td>Sell price</td>
-                                        <td>90% recovery</td>
+                                        <td>
+                                            {{calculateArtificialFlowerCost()}}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td></td>
+                                        <td>Fresh flower best case</td>
+                                        <td>{{bestCaseFlowerProfit()}}</td>
                                     </tr>
                                     <tr>
-                                        <td></td>
+                                        <td>Fresh flower worse case</td>
+                                        <td>{{avgCaseFlowerProfit()}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Structures</td>
+                                        <td>{{calculateStructureCost()}}</td>
                                     </tr>
                                 </table>
-
                             </div>
 
                         </div>
@@ -654,11 +635,11 @@ require_once('authenticate.php');
                                 <div id="c-{{component.id}}" ng-show="component.visible && component.qtty > 0 ">
                                     <table border="1" width="100%">
                                         <tr>
-                                            <td colspan="5">
+                                            <td colspan="6">
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="5">
+                                            <td colspan="6">
                                                 <input ng-model="component.description" style="width: 100%;"/>
                                             </td>
                                         </tr>
@@ -667,10 +648,10 @@ require_once('authenticate.php');
                                             <th>Desription</th>
                                             <th>Rate</th>
                                             <th>Qtty</th>
-                                            <th width="10%">Cost</th>
+                                            <th width="10%" colspan="2">Cost</th>
                                         </tr>
                                         <tr class="sub-component-header">
-                                            <td colspan="4" style="padding-top: 1em;">Configured Items</td>
+                                            <td colspan="5" style="padding-top: 1em;">Configured Items</td>
                                             <td style="padding-top: 1em;">
                                                 <h4><span style="color: #761c19;text-align: center"
                                                           ng-click="newItem(component,'configured')"><h4>➕</h4></span>
@@ -708,9 +689,10 @@ require_once('authenticate.php');
                                                 {{calculateItemHireRate(item)}}
                                                 <span>{{item.hire_rate}} </span>
                                             </td>
+                                            <td><h4><span style="color: #761c19;text-align: center" ng-click="deleteElement(component.items,$index)"><h4>&#x232b;</h4></span></h4></td>
                                         </tr>
                                         <tr class="sub-component-header">
-                                            <td colspan="4" style="padding-top: 1em;">Basic Items</td>
+                                            <td colspan="5" style="padding-top: 1em;">Basic Items</td>
                                             <td style="padding-top: 1em;">
                                                 <h4><span style="color: #761c19;text-align: center"
                                                           ng-click="newItem(component, 'minor')"><h4>➕</h4></span></h4>
@@ -722,18 +704,19 @@ require_once('authenticate.php');
                                             <td>NA</td>
                                             <td>NA</td>
                                             <td><input ng-model="mi.cost" name="miCost" class="digit"/></td>
+                                            <td><h4><span style="color: #761c19;text-align: center" ng-click="deleteElement(component.minorItem,$index)"><h4>&#x232b;</h4></span></h4></td>
                                         </tr>
                                         <tr>
-                                            <td colspan="5">&nbsp;</td>
+                                            <td colspan="6">&nbsp;</td>
                                         </tr>
                                         <tr>
-                                            <td colspan="5">C</td>
+                                            <td colspan="6">&nbsp;</td>
                                         </tr>
                                         <tr>
-                                            <td colspan="5">&nbsp;</td>
+                                            <td colspan="6">&nbsp;</td>
                                         </tr>
                                         <tr class="sub-component-header">
-                                            <td colspan="4" style="padding-top: 1em;">Fresh flowers</td>
+                                            <td colspan="5" style="padding-top: 1em;">Fresh flowers</td>
                                             <td style="padding-top: 1em;"><h4><span
                                                             ng-click="newFlower(component)">➕</span></h4></td>
                                         </tr>
@@ -751,42 +734,42 @@ require_once('authenticate.php');
                                             <td><input ng-model="flower.qtty" name="ffQtty" class="required digit"/>
                                             </td>
                                             <td>{{flower.qtty * flower.sellRate}}</td>
+                                            <td><h4><span style="color: #761c19;text-align: center" ng-click="deleteElement(component.freshFlowers,$index)"><h4>&#x232b;</h4></span></h4></td>
                                         </tr>
                                         <tr class="calculated-field-row">
                                             <td>Total fresh flower cost</td>
-                                            <td colspan="3"></td>
+                                            <td colspan="4"></td>
                                             <td>
                                                 {{calculateFreshFlowerTotal(component)}}
                                                 {{component.totalFreshFlowerCost}}
                                             </td>
                                         </tr>
                                         <tr class="sub-component-header">
-                                            <td colspan="5" style="padding-top: 1em;">Artificial flowers</td>
+                                            <td colspan="6" style="padding-top: 1em;">Artificial flowers</td>
                                         </tr>
                                         <tr>
                                             <td>Silk</td>
                                             <td>Description</td>
                                             <td>{{component.silkFlowerRate}}</td>
                                             <td><input ng-model="component.silkFlowers"></td>
-                                            <td>{{component.silkFlowerRate * component.silkFlowers}}</td>
+                                            <td colspan="2">{{component.silkFlowerRate * component.silkFlowers}}</td>
                                         </tr>
                                         <tr>
                                             <td>Non-Silk</td>
                                             <td>Description</td>
                                             <td>{{component.otherFlowerRate}}</td>
                                             <td><input ng-model="component.otherFlowers" name="of" class="digit"></td>
-                                            <td>{{component.otherFlowers * component.otherFlowerRate}}</td>
+                                            <td colspan="2">{{component.otherFlowers * component.otherFlowerRate}}</td>
                                         </tr>
                                         <tr>
                                             <td>Artificial leaves</td>
                                             <td colspan="2">description</td>
-                                            <td><input ng-model="component.artificialLeaves" name="al" class="digit">
-                                            <td>
+                                            <td colspan="2"><input ng-model="component.artificialLeaves" name="al" class="digit"><td>
                                         </tr>
                                         <tr class="calculated-field-row">
                                             <td>Total artificial</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateArtificialFlowerTotal(component)}}
                                                 {{component.totalArtificialFlowerCost}}
                                             </td>
@@ -794,28 +777,28 @@ require_once('authenticate.php');
                                         <tr class="calculated-field-row subtotal">
                                             <td>Total flower cost</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{component.totalFlowerCost}}
                                             </td>
                                         </tr>
                                         <tr class="calculated-field-row">
                                             <td>Total material cost</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateTotalMaterialCost(component)}}
                                             </td>
                                         </tr>
                                         <tr class="calculated-field-row">
                                             <td>Total base cost</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateBaseCost(component)}}
                                             </td>
                                         </tr>
                                         <tr class="calculated-field-row">
                                             <td>Labour</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateLabourCostForComponent(component) }}
                                                 {{component.totalLabourCost}}
                                             </td>
@@ -823,7 +806,7 @@ require_once('authenticate.php');
                                         <tr class="calculated-field-row">
                                             <td>Florist charge</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateFloristCostForComponent(component) }}
                                                 {{component.totalFloristCost}}
                                             </td>
@@ -831,7 +814,7 @@ require_once('authenticate.php');
                                         <tr class="calculated-field-row">
                                             <td>Other costs</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateOtherCostsForComponent(component) }}
                                                 {{component.totalOtherCost}}
                                             </td>
@@ -840,7 +823,7 @@ require_once('authenticate.php');
                                             <td>Total before profit</td>
                                             <td>Total before profit</td>
                                             <td colspan="2"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateTotalBeforeProfit(component) }}
                                                 {{component.totalBeforeProfit}}
                                             </td>
@@ -848,7 +831,7 @@ require_once('authenticate.php');
                                         <tr class="calculated-field-row">
                                             <td>Profit</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateProfitForComponent(component) }}
                                                 {{component.totalProfit|number}}
                                             </td>
@@ -856,7 +839,7 @@ require_once('authenticate.php');
                                         <tr class="calculated-field-row total">
                                             <td>Component final cost</td>
                                             <td colspan="3"></td>
-                                            <td>
+                                            <td colspan="2">
                                                 {{calculateComponentTotal(component)}}
                                                 {{component.total|number}}
                                             </td>
@@ -910,6 +893,10 @@ require_once('authenticate.php');
         }
     });
 
+    $('input').keyup(function() {
+        var $th = $(this);
+        $th.val( $th.val().replace(/[^a-zA-Z0-9 _|%]/g, function(str) { return ''; } ) );
+    });
 
     (function () {
             'use strict';
@@ -1146,7 +1133,7 @@ require_once('authenticate.php');
                     if ($scope.quoteData != null && quotedOtherCosts != null) {
                         quotedOtherCosts.total = parseInt(quotedOtherCosts.totalShopRunningCostApplied) + parseInt(quotedOtherCosts.food) +
                             parseInt(quotedOtherCosts.paint) + parseInt(quotedOtherCosts.cleaning) + parseInt(quotedOtherCosts.misc) +
-                            parseInt(quotedOtherCosts.hiddenTransport) + parseInt(quotedOtherCosts.flowerWastageApplied);
+                            parseInt(quotedOtherCosts.hiddenTransport) + parseInt(quotedOtherCosts.flowerWastage);
                     }
                 };
 
@@ -1281,11 +1268,27 @@ require_once('authenticate.php');
                     return total;
                 };
 
-                $scope.calculateTotalFlowersQuoted = function () {
+                $scope.calculateFlowerWastage = function () {
                     var total = 0;
+                    if ($scope.quoteData != null) {
+                        angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (flower) {
+                            total = total + (flower.qtty * flower.buyRate);
+                        });
+                    }
+                    if ($scope.quoteData.quotedOtherCosts.flowerWastagePerc === null || $scope.quoteData.quotedOtherCosts.flowerWastagePerc === 0) {
+                        return 0;
+                    } else {
+                        $scope.quoteData.quotedOtherCosts.flowerWastage = total/100 * parseInt($scope.quoteData.quotedOtherCosts.flowerWastagePerc);
+                        return $scope.quoteData.quotedOtherCosts.flowerWastage;
+                    }
+                };
+
+                $scope.calculateTotalFlowersQuoted = function () {
+
 
                     angular.forEach($scope.quoteData.quotedFreshFlowerRates, function (qff) {
                         var found = false;
+                        var total = 0;
                         angular.forEach($scope.quoteData.components, function (component) {
                             if (component.mandetory) {
 
@@ -1301,6 +1304,7 @@ require_once('authenticate.php');
                         if (!found) {
                             qff.qtty = 0;
                         }
+                        found = false;
                     });
                 };
 
@@ -1349,6 +1353,7 @@ require_once('authenticate.php');
                             if (data.code === 200) {
                                 Notify("Save success", null, null, 'success');
                                 $scope.quotation.data = $scope.quoteData;
+                                $scope.quotation.id = data.data.id;
                                 $scope.isDirty = false;
                             } else {
                                 Notify("Save failed" + JSON.stringify(data.data), null, null, 'danger');
@@ -1502,7 +1507,17 @@ require_once('authenticate.php');
                 };
 
                 $scope.delete = function () {
-                    alert('delete confirmed');
+                    $http.delete('rest/api/v1/quotation.php/' + $scope.quotation.id).then(function (response) {
+                        if (response.data.code === 200) {
+                            Notify("Sucessfuly deleted", null, null, 'success');
+                            $scope.quotation.data = null;
+                            $scope.quotation = null;
+                            $scope.isDirty = false;
+                        }
+                        else {
+                            Notify("Save failed" + JSON.stringify(data.data), null, null, 'danger');
+                        }
+                    });
                 };
 
                 $scope.confirmDelete = function () {
@@ -1522,7 +1537,7 @@ require_once('authenticate.php');
                             cost = cost + parseInt(quotedFF.actual);
                             sale = sale + ((quotedFF.qtty * quotedFF.sellRate));
                         });
-                        console.log("Sale : " + sale + " Cost : "  + cost);
+                        console.log("Sale : " + sale + " Cost : " + cost);
 
                         $scope.quoteData.freshFlowerProfit = sale - cost;
                         $scope.quoteData.freshFlowerCost = cost;
@@ -1531,7 +1546,6 @@ require_once('authenticate.php');
                         return 0;
                     }
                 };
-
 
                 $scope.calculateTotalExpenditure = function () {
                     var total = 0;
@@ -1544,9 +1558,12 @@ require_once('authenticate.php');
                         $scope.quoteData.actualCost = total;
                     }
                     return total;
-
                 };
-
+            
+            
+                $scope.deleteElement = function(items,index) {
+                    items.splice(index,1);
+                }
 
                 $scope.goToInventory = function () {
                     if (!$scope.isDirty) {
@@ -1570,7 +1587,6 @@ require_once('authenticate.php');
                 };
 
             }
-
         }
     )
     ();

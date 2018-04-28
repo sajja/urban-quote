@@ -46,6 +46,22 @@ function handlePut($conn)
     echo json_encode(newQuotation($conn));
 }
 
+function handleDelete($conn)
+{
+    $parms = $_SERVER['QUERY_STRING'];
+    $resource = createResource($_SERVER['PATH_INFO'], $parms);
+
+    if ($resource !== null && is_numeric($resource->name)) {
+        try {
+            softDeleteQuotation($resource->name, $conn);
+            echo json_encode(new Response(200, '', "Successfully deleted"));
+        } catch (Exception $e) {
+            echo json_encode(new Response(500, 'Error', $e->getMessage()));
+        }
+    } else {
+        echo json_encode(new Response(500, 'Error', ' Invalid quotation id'));
+    }
+}
 
 function quoteFlower($flower)
 {

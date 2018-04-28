@@ -97,7 +97,7 @@ function loadAllLabour($conn)
         }
         $result->close();
     } else {
-        throw new Exception("Error " . mysqli_error($conn) );
+        throw new Exception("Error " . mysqli_error($conn));
     }
     return $labour;
 }
@@ -235,7 +235,7 @@ function loadUtilities($conn)
 
 function findQuotationDataById($id, $conn)
 {
-    $sql = "SELECT * FROM quotation_data where quotation_id=" . $id;
+    $sql = "SELECT * FROM quotation_data where quotation_id=" . $id ;
     if ($result = $conn->query($sql)) {
         $row_cnt = $result->num_rows;
         while ($row = $result->fetch_assoc()) {
@@ -248,9 +248,20 @@ function findQuotationDataById($id, $conn)
     }
 }
 
+function softDeleteQuotation($id, $conn)
+{
+    $sql = "UPDATE quotation set deleted=true where id = " . $id;
+    if ($result = $conn->query($sql)) {
+        return "Successfully deleted";
+    } else {
+        echo("Error description: " . mysqli_error($conn) . $sql);
+    }
+}
+
+
 function findQuotationById($id, $conn)
 {
-    $sql = "SELECT * FROM quotation where id = " . $id;
+    $sql = "SELECT * FROM quotation where id = " . $id . " and deleted = false";
     if ($result = $conn->query($sql)) {
         while ($row = $result->fetch_assoc()) {
             $quotation = loadQuotation($row);
@@ -270,7 +281,7 @@ function findQuotations($name, $from, $to, $conn)
         return "Hello";
     } else {
         $quotations = array();
-        $sql = "SELECT * FROM quotation where 1 = 1 ";
+        $sql = "SELECT * FROM quotation where deleted = false ";
         if ($name != null) {
             $sql = $sql . " and  client_name like '%" . $name . "%' ";
         }
