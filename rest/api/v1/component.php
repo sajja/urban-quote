@@ -23,7 +23,7 @@ function handlePut()
 
 function handlePost()
 {
-    $conn = new mysqli('localhost', 'root', 'root', 'urbanste_master');
+    $conn = new mysqli('localhost', 'sajith', 'sajith', 'urbanste_master');
     $r = createResource($_SERVER['PATH_INFO']);
     $res = new Item($r->name, $_POST["description"], $_POST["total"], $_POST["recoverytime"], $_POST["hirecost"]);
     $json =  json_encode(saveOrUpdateItem($res,$conn));
